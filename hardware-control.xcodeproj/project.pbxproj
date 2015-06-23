@@ -100,7 +100,7 @@
 				B9BFAAF91B38955B006471ED /* MotorCtrl */,
 			);
 			name = "Hardware abstraction";
-			path = include/HAL;
+			path = HAL;
 			sourceTree = "<group>";
 		};
 		B9BFAAF51B3886D6006471ED /* Interfaces */ = {
