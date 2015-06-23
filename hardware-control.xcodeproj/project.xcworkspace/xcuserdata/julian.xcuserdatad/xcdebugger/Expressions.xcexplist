@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "message::dispatcher message::dispatcher::handle&lt;EventNotificationHandler&lt;int&gt;::handleEvent(message&amp;&amp;)::&apos;lambda&apos;(int)&gt;(EventNotificationHandler&lt;int&gt;::handleEvent(message&amp;&amp;)::&apos;lambda&apos;(int)) const:main.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "msg_proper">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>
