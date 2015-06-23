@@ -1,0 +1,324 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B9BFAB031B39E15B006471ED /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9BFAB021B39E15B006471ED /* main.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B980138C197289AD00373737 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		B980138E197289AD00373737 /* hardware-control */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "hardware-control"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B9BFAAEE1B388376006471ED /* IVisitor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IVisitor.h; path = Framework/Interfaces/IVisitor.h; sourceTree = "<group>"; };
+		B9BFAAEF1B3883A1006471ED /* IVisitable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IVisitable.h; path = Framework/Interfaces/IVisitable.h; sourceTree = "<group>"; };
+		B9BFAAF01B3883D6006471ED /* Visitable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Visitable.h; path = Framework/Visitable.h; sourceTree = "<group>"; };
+		B9BFAAF11B388403006471ED /* Visitor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Visitor.h; path = Framework/Visitor.h; sourceTree = "<group>"; };
+		B9BFAAF61B3886F0006471ED /* IMotorCtrl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMotorCtrl.h; sourceTree = "<group>"; };
+		B9BFAAF71B388729006471ED /* IMotorCtrlVisitors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMotorCtrlVisitors.h; sourceTree = "<group>"; };
+		B9BFAAFA1B38959A006471ED /* CanOpenDS402MotorCtrl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CanOpenDS402MotorCtrl.h; sourceTree = "<group>"; };
+		B9BFAAFB1B3895C6006471ED /* ElmoWhistleMotorCtrl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ElmoWhistleMotorCtrl.h; sourceTree = "<group>"; };
+		B9BFAAFE1B39DA0C006471ED /* MoveToRel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MoveToRel.h; sourceTree = "<group>"; };
+		B9BFAAFF1B39DA50006471ED /* GetControllerId.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GetControllerId.h; sourceTree = "<group>"; };
+		B9BFAB001B39DA83006471ED /* Initialize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Initialize.h; sourceTree = "<group>"; };
+		B9BFAB021B39E15B006471ED /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B980138B197289AD00373737 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B9801385197289AD00373737 = {
+			isa = PBXGroup;
+			children = (
+				B9801390197289AD00373737 /* hardware-control */,
+				B980138F197289AD00373737 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B980138F197289AD00373737 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B980138E197289AD00373737 /* hardware-control */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B9801390197289AD00373737 /* hardware-control */ = {
+			isa = PBXGroup;
+			children = (
+				B9BFAB021B39E15B006471ED /* main.cpp */,
+				B9BFAAF41B388463006471ED /* Hardware abstraction */,
+				B9BFAAF31B38844E006471ED /* Framework */,
+			);
+			path = "hardware-control";
+			sourceTree = "<group>";
+		};
+		B9BFAAF21B38843D006471ED /* Interfaces */ = {
+			isa = PBXGroup;
+			children = (
+				B9BFAAEE1B388376006471ED /* IVisitor.h */,
+				B9BFAAEF1B3883A1006471ED /* IVisitable.h */,
+			);
+			name = Interfaces;
+			sourceTree = "<group>";
+		};
+		B9BFAAF31B38844E006471ED /* Framework */ = {
+			isa = PBXGroup;
+			children = (
+				B9BFAAF01B3883D6006471ED /* Visitable.h */,
+				B9BFAAF11B388403006471ED /* Visitor.h */,
+				B9BFAAF21B38843D006471ED /* Interfaces */,
+			);
+			name = Framework;
+			sourceTree = "<group>";
+		};
+		B9BFAAF41B388463006471ED /* Hardware abstraction */ = {
+			isa = PBXGroup;
+			children = (
+				B9BFAAF91B38955B006471ED /* MotorCtrl */,
+			);
+			name = "Hardware abstraction";
+			path = include/HAL;
+			sourceTree = "<group>";
+		};
+		B9BFAAF51B3886D6006471ED /* Interfaces */ = {
+			isa = PBXGroup;
+			children = (
+				B9BFAAF61B3886F0006471ED /* IMotorCtrl.h */,
+				B9BFAAF71B388729006471ED /* IMotorCtrlVisitors.h */,
+			);
+			path = Interfaces;
+			sourceTree = "<group>";
+		};
+		B9BFAAF91B38955B006471ED /* MotorCtrl */ = {
+			isa = PBXGroup;
+			children = (
+				B9BFAAFD1B39D9EA006471ED /* Commands */,
+				B9BFAB011B39DC53006471ED /* Implementation */,
+				B9BFAAF51B3886D6006471ED /* Interfaces */,
+			);
+			path = MotorCtrl;
+			sourceTree = "<group>";
+		};
+		B9BFAAFD1B39D9EA006471ED /* Commands */ = {
+			isa = PBXGroup;
+			children = (
+				B9BFAAFE1B39DA0C006471ED /* MoveToRel.h */,
+				B9BFAAFF1B39DA50006471ED /* GetControllerId.h */,
+				B9BFAB001B39DA83006471ED /* Initialize.h */,
+			);
+			path = Commands;
+			sourceTree = "<group>";
+		};
+		B9BFAB011B39DC53006471ED /* Implementation */ = {
+			isa = PBXGroup;
+			children = (
+				B9BFAAFA1B38959A006471ED /* CanOpenDS402MotorCtrl.h */,
+				B9BFAAFB1B3895C6006471ED /* ElmoWhistleMotorCtrl.h */,
+			);
+			path = Implementation;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B980138D197289AD00373737 /* hardware-control */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B9801397197289AD00373737 /* Build configuration list for PBXNativeTarget "hardware-control" */;
+			buildPhases = (
+				B980138A197289AD00373737 /* Sources */,
+				B980138B197289AD00373737 /* Frameworks */,
+				B980138C197289AD00373737 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "hardware-control";
+			productName = "hardware-control";
+			productReference = B980138E197289AD00373737 /* hardware-control */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B9801386197289AD00373737 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = "Julian Becker";
+			};
+			buildConfigurationList = B9801389197289AD00373737 /* Build configuration list for PBXProject "hardware-control" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = B9801385197289AD00373737;
+			productRefGroup = B980138F197289AD00373737 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B980138D197289AD00373737 /* hardware-control */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B980138A197289AD00373737 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B9BFAB031B39E15B006471ED /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		B9801395197289AD00373737 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = .;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"hardware-control",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		B9801396197289AD00373737 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				FRAMEWORK_SEARCH_PATHS = .;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"hardware-control",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		B9801398197289AD00373737 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		B9801399197289AD00373737 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B9801389197289AD00373737 /* Build configuration list for PBXProject "hardware-control" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B9801395197289AD00373737 /* Debug */,
+				B9801396197289AD00373737 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B9801397197289AD00373737 /* Build configuration list for PBXNativeTarget "hardware-control" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B9801398197289AD00373737 /* Debug */,
+				B9801399197289AD00373737 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B9801386197289AD00373737 /* Project object */;
+}
