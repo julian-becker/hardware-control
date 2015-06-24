@@ -1,5 +1,6 @@
 #pragma once
 #include "IVisitable.h"
+#include <Framework/Any.h>
 
 template <typename CLASS, typename INTERFACE, typename ITER = INTERFACE> struct
 VisitableImpl;
@@ -8,7 +9,7 @@ VisitableImpl;
 template <typename CLASS, typename INTERFACE, typename VISITOR, typename...VISITORS> struct
 VisitableImpl<CLASS,INTERFACE,IVisitable<VISITOR,VISITORS...>> : VisitableImpl<CLASS,INTERFACE,IVisitable<VISITORS...>> {
     using VisitableImpl<CLASS,INTERFACE,IVisitable<VISITORS...>>::accept;
-    typename VISITOR::visit_return_type accept(VISITOR& visitor) final override {
+    Any accept(VISITOR& visitor) final override {
         return visitor.visit(static_cast<CLASS&>(*this));
     };
 };
@@ -17,7 +18,7 @@ VisitableImpl<CLASS,INTERFACE,IVisitable<VISITOR,VISITORS...>> : VisitableImpl<C
 template <typename CLASS, typename INTERFACE, typename VISITOR> struct
 VisitableImpl<CLASS,INTERFACE,IVisitable<VISITOR>> : INTERFACE {
     using INTERFACE::accept;
-    typename VISITOR::visit_return_type accept(VISITOR& visitor) final override {
+    Any accept(VISITOR& visitor) final override {
         return visitor.visit(static_cast<CLASS&>(*this));
     };
 };

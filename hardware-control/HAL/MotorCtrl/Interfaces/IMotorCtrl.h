@@ -3,10 +3,7 @@
 #include "IMotorCtrlVisitors.h"
 
 using IMotorCtrl = IVisitable<
-                        IMotorCtrlVisitor<bool>,         // list all accepted visitor return types here
-                        IMotorCtrlVisitor<char>,         // ...
-                        IMotorCtrlVisitor<int>,
-                        IMotorCtrlVisitor<std::string>
+                        IMotorCtrlVisitorBase         // list all accepted visitor return types here
                    >;
 
 
