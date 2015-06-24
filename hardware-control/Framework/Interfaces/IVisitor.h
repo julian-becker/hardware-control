@@ -1,15 +1,15 @@
 #pragma once
 
 
-template <typename R, typename T, typename...TS> struct
-IVisitor : IVisitor<R,TS...> {
+template <typename R, typename VISITABLE, typename...VISITABLES> struct
+IVisitor : IVisitor<R,VISITABLES...> {
     using visit_return_type = R;
-    using IVisitor<R,TS...>::visit;
-    virtual R visit(T&) = 0;
+    using IVisitor<R,VISITABLES...>::visit;
+    virtual R visit(VISITABLE&) = 0;
 };
 
-template <typename R, typename T> struct
-IVisitor<R,T> {
+template <typename R, typename VISITABLE> struct
+IVisitor<R,VISITABLE> {
     using visit_return_type = R;
-    virtual R visit(T&) = 0;
+    virtual R visit(VISITABLE&) = 0;
 };
