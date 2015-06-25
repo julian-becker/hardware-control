@@ -2,24 +2,24 @@
 #include <Framework/Any.h>
 
 template <typename VISITABLE, typename...VISITABLES> struct
-IVisitorBase : IVisitorBase<VISITABLES...> {
-    using visitor_interface = IVisitorBase;
-    using IVisitorBase<VISITABLES...>::visit;
+IVisitor : IVisitor<VISITABLES...> {
+    using visitor_interface = IVisitor;
+    using IVisitor<VISITABLES...>::visit;
     virtual Any visit(VISITABLE&) = 0;
 };
 
 template <typename VISITABLE> struct
-IVisitorBase<VISITABLE> {
-    using visitor_interface = IVisitorBase;
+IVisitor<VISITABLE> {
+    using visitor_interface = IVisitor;
     virtual Any visit(VISITABLE&) = 0;
 };
 
 
 template <typename R, typename INTERFACE, typename VISITABLE, typename...VISITABLES> struct
-IVisitorImpl : IVisitorImpl<R,INTERFACE,VISITABLES...> {
+IVisitorTypedImpl : IVisitorTypedImpl<R,INTERFACE,VISITABLES...> {
     using visit_return_type = R;
-    using IVisitorImpl<R,INTERFACE,VISITABLES...>::visit;
-    using IVisitorImpl<R,INTERFACE,VISITABLES...>::visit_typed;
+    using IVisitorTypedImpl<R,INTERFACE,VISITABLES...>::visit;
+    using IVisitorTypedImpl<R,INTERFACE,VISITABLES...>::visit_typed;
     
     virtual R visit_typed(VISITABLE& visitable) {
         return visit(visitable).template as<R>();
@@ -27,7 +27,7 @@ IVisitorImpl : IVisitorImpl<R,INTERFACE,VISITABLES...> {
 };
 
 template <typename R, typename INTERFACE, typename VISITABLE> struct
-IVisitorImpl<R,INTERFACE,VISITABLE> : INTERFACE {
+IVisitorTypedImpl<R,INTERFACE,VISITABLE> : INTERFACE {
     using INTERFACE::visit;
     using visit_return_type = R;
     
@@ -37,4 +37,4 @@ IVisitorImpl<R,INTERFACE,VISITABLE> : INTERFACE {
 };
 
 template <typename R, typename...VISITABLES> using
-IVisitor = IVisitorImpl<R, IVisitorBase<VISITABLES...>, VISITABLES...>;
+IVisitorTyped = IVisitorTypedImpl<R, IVisitor<VISITABLES...>, VISITABLES...>;

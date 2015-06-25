@@ -7,7 +7,7 @@ struct CanOpenDS402MotorCtrl;
 struct ElmoWhistleMotorCtrl;
 
 
-struct IMotorCtrlVisitorBase : IVisitorBase<CanOpenDS402MotorCtrl,ElmoWhistleMotorCtrl> {};
+struct IMotorCtrlVisitorBase : IVisitor<CanOpenDS402MotorCtrl,ElmoWhistleMotorCtrl> {};
 
 
 template <typename CLASS, typename RETURN_TYPE> using
