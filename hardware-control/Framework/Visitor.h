@@ -12,7 +12,6 @@ VisitorImpl : VisitorImpl<CLASS, INTERFACE, TS...> {
 
 template <typename CLASS, typename INTERFACE, typename T> struct
 VisitorImpl<CLASS, INTERFACE, T> : INTERFACE {
-    using INTERFACE::visit;
     Any visit(T& visitable) final override {
         return ::visit<T,CLASS>::call(visitable,static_cast<CLASS&>(*this));
     }

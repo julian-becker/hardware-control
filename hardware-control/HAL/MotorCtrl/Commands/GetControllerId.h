@@ -1,7 +1,9 @@
 #pragma once
 #include <HAL/MotorCtrl/Interfaces/IMotorCtrlVisitors.h>
 
-struct ControllerId : MotorCtrlVisitorBase<ControllerId,std::string> {};
+struct ControllerId : MotorCtrlVisitorBase<ControllerId,std::string> {
+    ~ControllerId() throw() {}
+};
 
 
 template <> struct

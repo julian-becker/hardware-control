@@ -9,7 +9,7 @@ VisitableImpl;
 template <typename CLASS, typename INTERFACE, typename VISITOR, typename...VISITORS> struct
 VisitableImpl<CLASS,INTERFACE,IVisitable<VISITOR,VISITORS...>> : VisitableImpl<CLASS,INTERFACE,IVisitable<VISITORS...>> {
     using VisitableImpl<CLASS,INTERFACE,IVisitable<VISITORS...>>::accept;
-    Any accept(VISITOR& visitor) final override {
+    Any accept_untyped(VISITOR& visitor) final override {
         return visitor.visit(static_cast<CLASS&>(*this));
     };
 };
@@ -17,9 +17,9 @@ VisitableImpl<CLASS,INTERFACE,IVisitable<VISITOR,VISITORS...>> : VisitableImpl<C
 
 template <typename CLASS, typename INTERFACE, typename VISITOR> struct
 VisitableImpl<CLASS,INTERFACE,IVisitable<VISITOR>> : INTERFACE {
-    using INTERFACE::accept;
-    Any accept(VISITOR& visitor) final override {
-        return visitor.visit(static_cast<CLASS&>(*this));
+    Any accept_untyped(VISITOR& visitor) final override {
+        auto x = visitor.visit(static_cast<CLASS&>(*this));
+        return x;
     };
 };
 

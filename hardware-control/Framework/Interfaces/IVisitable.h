@@ -6,21 +6,24 @@ visit;
 
 template <typename VISITOR, typename...VISITORS> struct
 IVisitable : IVisitable<VISITORS...>{
-    using IVisitable<VISITORS...>::accept;
-    virtual Any accept(VISITOR&) = 0;
-    
     template <typename VISITOR_T>
-    typename VISITOR_T::visit_return_type accept_typed(VISITOR_T& visitor) {
-        return accept(visitor).template as<typename VISITOR_T::visit_return_type>();
+    typename VISITOR_T::visit_return_type accept(VISITOR_T& visitor) {
+        return accept_untyped(visitor).template as<typename VISITOR_T::visit_return_type>();
     }
+private:
+    using IVisitable<VISITORS...>::accept;
+    friend struct IVisitable;
+    virtual Any accept_untyped(VISITOR&) = 0;
 };
 
 template <typename VISITOR> struct
 IVisitable<VISITOR> {
-    virtual Any accept(VISITOR&) = 0;
 
     template <typename VISITOR_T>
-    typename VISITOR_T::visit_return_type accept_typed(VISITOR_T& visitor) {
-        return accept(visitor).template as<typename VISITOR_T::visit_return_type>();
+    typename VISITOR_T::visit_return_type accept(VISITOR_T& visitor) {
+        return accept_untyped(visitor).template as<typename VISITOR_T::visit_return_type>();
     }
+private:
+    friend struct IVisitable;
+    virtual Any accept_untyped(VISITOR&) = 0;
 };
