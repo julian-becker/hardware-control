@@ -21,7 +21,7 @@ has_visit_return_type
 
 
 template <typename VISITOR, typename...VISITORS> struct
-IVisitable : IVisitable<VISITORS...>{
+IVisitable : IVisitable<VISITORS...> {
 
     template <typename VISITOR_T>
     std::enable_if_t<has_visit_return_type<VISITOR_T>::value,typename VISITOR_T::visit_return_type> accept(VISITOR_T& visitor) {

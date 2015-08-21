@@ -1,21 +1,24 @@
 #pragma once
 #include <HAL/MotorCtrl/Interfaces/IMotorCtrlVisitors.h>
 
-struct ControllerId : MotorCtrlVisitorBase<ControllerId,std::string> {
-    ~ControllerId() throw() {}
-};
+namespace Motor {
 
+    struct ControllerId : MotorCtrlVisitorBase<ControllerId,std::string> {
+        ~ControllerId() throw() {}
+    };
+
+}
 
 template <> struct
-visit<CanOpenDS402MotorCtrl,ControllerId> {
-    static std::string call(CanOpenDS402MotorCtrl& mctrl, ControllerId& visitor) {
+visit<CanOpenDS402MotorCtrl,Motor::ControllerId> {
+    static std::string call(CanOpenDS402MotorCtrl& mctrl, Motor::ControllerId& visitor) {
         return "CanOpenDS402MotorCtrl";
     }
 };
 
 template <> struct
-visit<ElmoWhistleMotorCtrl,ControllerId> {
-    static std::string call(ElmoWhistleMotorCtrl& mctrl, ControllerId& visitor) {
+visit<ElmoWhistleMotorCtrl,Motor::ControllerId> {
+    static std::string call(ElmoWhistleMotorCtrl& mctrl, Motor::ControllerId& visitor) {
         return "ElmoWhistleMotorCtrl";
     }
 };

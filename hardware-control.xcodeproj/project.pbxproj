@@ -37,6 +37,15 @@
 		B9BFAAFF1B39DA50006471ED /* GetControllerId.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GetControllerId.h; sourceTree = "<group>"; };
 		B9BFAB001B39DA83006471ED /* Initialize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Initialize.h; sourceTree = "<group>"; };
 		B9BFAB021B39E15B006471ED /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		B9C9B20B1B87AD6D00076BBA /* FindHome.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FindHome.h; sourceTree = "<group>"; };
+		B9C9B20C1B87ADED00076BBA /* MoveToAbs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MoveToAbs.h; sourceTree = "<group>"; };
+		B9C9B20D1B87B20200076BBA /* RunVelocity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RunVelocity.h; sourceTree = "<group>"; };
+		B9C9B20E1B87B61C00076BBA /* ICameraCtrlVisitors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ICameraCtrlVisitors.h; sourceTree = "<group>"; };
+		B9C9B20F1B87B67400076BBA /* ICameraCtrl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ICameraCtrl.h; sourceTree = "<group>"; };
+		B9C9B2101B87B6DC00076BBA /* CmosOV3642.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CmosOV3642.h; sourceTree = "<group>"; };
+		B9C9B2111B87B76900076BBA /* CmosOV8825.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CmosOV8825.h; sourceTree = "<group>"; };
+		B9C9B2161B87B91C00076BBA /* Initialize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Initialize.h; sourceTree = "<group>"; };
+		B9C9B2171B87BC7200076BBA /* TakePicture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TakePicture.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +108,7 @@
 		B9BFAAF41B388463006471ED /* Hardware abstraction */ = {
 			isa = PBXGroup;
 			children = (
+				B9C9B2121B87B78E00076BBA /* CameraCtrl */,
 				B9BFAAF91B38955B006471ED /* MotorCtrl */,
 			);
 			name = "Hardware abstraction";
@@ -130,6 +140,9 @@
 				B9BFAAFE1B39DA0C006471ED /* MoveToRel.h */,
 				B9BFAAFF1B39DA50006471ED /* GetControllerId.h */,
 				B9BFAB001B39DA83006471ED /* Initialize.h */,
+				B9C9B20B1B87AD6D00076BBA /* FindHome.h */,
+				B9C9B20C1B87ADED00076BBA /* MoveToAbs.h */,
+				B9C9B20D1B87B20200076BBA /* RunVelocity.h */,
 			);
 			path = Commands;
 			sourceTree = "<group>";
@@ -141,6 +154,43 @@
 				B9BFAAFB1B3895C6006471ED /* ElmoWhistleMotorCtrl.h */,
 			);
 			path = Implementation;
+			sourceTree = "<group>";
+		};
+		B9C9B2121B87B78E00076BBA /* CameraCtrl */ = {
+			isa = PBXGroup;
+			children = (
+				B9C9B2151B87B7B300076BBA /* Interfaces */,
+				B9C9B2141B87B7AC00076BBA /* Implementation */,
+				B9C9B2131B87B7A600076BBA /* Commands */,
+			);
+			path = CameraCtrl;
+			sourceTree = "<group>";
+		};
+		B9C9B2131B87B7A600076BBA /* Commands */ = {
+			isa = PBXGroup;
+			children = (
+				B9C9B2161B87B91C00076BBA /* Initialize.h */,
+				B9C9B2171B87BC7200076BBA /* TakePicture.h */,
+			);
+			path = Commands;
+			sourceTree = "<group>";
+		};
+		B9C9B2141B87B7AC00076BBA /* Implementation */ = {
+			isa = PBXGroup;
+			children = (
+				B9C9B2101B87B6DC00076BBA /* CmosOV3642.h */,
+				B9C9B2111B87B76900076BBA /* CmosOV8825.h */,
+			);
+			path = Implementation;
+			sourceTree = "<group>";
+		};
+		B9C9B2151B87B7B300076BBA /* Interfaces */ = {
+			isa = PBXGroup;
+			children = (
+				B9C9B20E1B87B61C00076BBA /* ICameraCtrlVisitors.h */,
+				B9C9B20F1B87B67400076BBA /* ICameraCtrl.h */,
+			);
+			path = Interfaces;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

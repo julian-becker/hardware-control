@@ -4,4 +4,5 @@
 
 
 struct ElmoWhistleMotorCtrl : public MotorCtrlBase<ElmoWhistleMotorCtrl> {
+
 };
