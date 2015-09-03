@@ -44,7 +44,16 @@ public:
     ~Any() throw() { delete val; }
     
     template <typename T> T&
-    as() { return static_cast<typed<T>*>(val)->val; }
+    as() {
+        return static_cast<typed<T>*>(val)->val;
+    }
+
+    template <typename T> T&
+    as_s() {
+        if(!dynamic_cast<typed<T>*>(val))
+            throw std::bad_cast();
+        return static_cast<typed<T>*>(val)->val;
+    }
     
 };
 /*

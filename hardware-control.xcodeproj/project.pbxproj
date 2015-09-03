@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		B9BFAB031B39E15B006471ED /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9BFAB021B39E15B006471ED /* main.cpp */; };
+		B9CB5E1F1B8E5A4B00010456 /* test_any.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9CB5E1E1B8E5A4B00010456 /* test_any.cpp */; };
+		B9CB5E231B8E5ACF00010456 /* test_motorctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9CB5E221B8E5ACF00010456 /* test_motorctrl.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -46,6 +48,9 @@
 		B9C9B2111B87B76900076BBA /* CmosOV8825.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CmosOV8825.h; sourceTree = "<group>"; };
 		B9C9B2161B87B91C00076BBA /* Initialize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Initialize.h; sourceTree = "<group>"; };
 		B9C9B2171B87BC7200076BBA /* TakePicture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TakePicture.h; sourceTree = "<group>"; };
+		B9CB5E1C1B8E59B500010456 /* catch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = catch.h; sourceTree = "<group>"; };
+		B9CB5E1E1B8E5A4B00010456 /* test_any.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_any.cpp; sourceTree = "<group>"; };
+		B9CB5E221B8E5ACF00010456 /* test_motorctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_motorctrl.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,9 +83,11 @@
 		B9801390197289AD00373737 /* hardware-control */ = {
 			isa = PBXGroup;
 			children = (
+				B9CB5E1D1B8E5A2100010456 /* Tests */,
 				B9BFAB021B39E15B006471ED /* main.cpp */,
 				B9BFAAF41B388463006471ED /* Hardware abstraction */,
 				B9BFAAF31B38844E006471ED /* Framework */,
+				B9CB5E1C1B8E59B500010456 /* catch.h */,
 			);
 			path = "hardware-control";
 			sourceTree = "<group>";
@@ -193,6 +200,15 @@
 			path = Interfaces;
 			sourceTree = "<group>";
 		};
+		B9CB5E1D1B8E5A2100010456 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				B9CB5E221B8E5ACF00010456 /* test_motorctrl.cpp */,
+				B9CB5E1E1B8E5A4B00010456 /* test_any.cpp */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -244,6 +260,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B9CB5E1F1B8E5A4B00010456 /* test_any.cpp in Sources */,
+				B9CB5E231B8E5ACF00010456 /* test_motorctrl.cpp in Sources */,
 				B9BFAB031B39E15B006471ED /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
