@@ -149,7 +149,7 @@ TEST_CASE( "Create a listener", "[listener]" ) {
     }
 }
 
-TEST_CASE("Register listener at observable", "[observable-listener]") {
+TEST_CASE("Register listener at observable", "[observable][listener]") {
     GIVEN("a listener and an observable") {
         observable<int> obs(0);
         listener<int>   lst([](int&&){});
@@ -183,7 +183,7 @@ TEST_CASE("Assign value to observable","[observable]") {
     }
 }
 
-TEST_CASE("Assigning value triggers observer", "[observable-listener]") {
+TEST_CASE("Assigning value triggers observer", "[observable][listener]") {
     GIVEN("an observable<int> and a listener<int>") {
         observable<int> obs(0);
         bool triggered = false;
@@ -198,18 +198,37 @@ TEST_CASE("Assigning value triggers observer", "[observable-listener]") {
     }
 }
 
-TEST_CASE("destroying listener before observable must be safe", "[observable-listener]") {
+TEST_CASE("destroying listener before observable must be safe", "[observable][listener]") {
     GIVEN("an observable<int> and a listener<int>") {
-        auto obs = new observable<int>(0);
+        auto obs = std::make_shared<observable<int>>(0);
         bool triggered = false;
-        auto lstnr = new listener<int>([&triggered](int&&){ triggered = true; });
+        auto lstnr = std::make_shared<listener<int>>([&triggered](int&&){ triggered = true; });
         
         WHEN("the listener is destroyed and the observable triggered") {
             obs->registerListener(*lstnr);
-            delete lstnr;
+            lstnr=0;
             *obs = 37;
             THEN("the program does not crash and the registered listener is still not triggered") {
                 REQUIRE(!triggered);
+            }
+        }
+    }
+}
+
+
+TEST_CASE("destroying observable before listener must be safe", "[observable][listener]") {
+    GIVEN("an observable<int> and a listener<int>") {
+        auto obs = std::make_shared<observable<int>>(0);
+        auto lstnr = std::make_shared<listener<int>>([](int&&){});
+        
+        WHEN("the observable is destroyed the registered listener can be safely destructed") {
+            obs->registerListener(*lstnr);
+            obs = nullptr;
+            
+            int* x;
+            
+            THEN("the program does not crash and the registered listener is still not triggered") {
+                lstnr = nullptr;
             }
         }
     }
