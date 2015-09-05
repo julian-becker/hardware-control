@@ -7,24 +7,59 @@
 //
 #include "../catch.h"
 #include <stdio.h>
+#include <memory>
+
+
+template <typename T> struct
+inotifyable {
+    virtual void handle(T&&) = 0;
+};
+
+template <typename T> struct
+inotify_dead {
+    virtual void notify_dead(T*) = 0;
+};
+
+template <typename T> struct
+ilistener;
+
+template <typename T> struct
+iobservable;
+
+
+template <typename T> struct
+ilistener : inotifyable<T>, inotify_dead<iobservable<T>> {
+    virtual void set_observer(iobservable<T>*) = 0;
+};
+
+template <typename T> struct
+iobservable : inotify_dead<ilistener<T>> {
+};
 
 
 template <typename T>
 class listener;
 
+
+
 template <typename T>
-class observable {
+class observable : public iobservable<T> {
     T value;
-    listener<T>* lstnr;
+    ilistener<T>* lstnr = nullptr;
     
 public:
     observable(T value)
-    : value(value),
-      lstnr(nullptr)
+    : value(value)
     {
     }
+    
+    ~observable() {
+        if(lstnr)
+            lstnr->notify_dead(this);
+    }
 
-    void registerListener(listener<T>& l) {
+    void registerListener(ilistener<T>& l) {
+        l.set_observer(this);
         lstnr = &l;
     }
     
@@ -38,22 +73,47 @@ public:
     operator const T& () const {
         return value;
     }
+    
+    void notify_dead(ilistener<T>* l) override {
+        if(l == lstnr)
+            lstnr = 0;
+    }
+
 };
 
 
+
+
 template <typename T>
-class listener {
+class listener final : public ilistener<T> {
     std::function<void(T&&)> behavior;
+    iobservable<T>* obs;
+    friend class observable<T>;
     
 public:
     template <typename LAMBDA>
     listener(LAMBDA lam)
-      : behavior(std::move(lam))
+      : behavior(std::forward<LAMBDA>(lam)),
+        obs(nullptr)
     {
     }
     
-    void handle(T&& arg) {
+    void handle(T&& arg) override {
         behavior(std::move(arg));
+    }
+    
+    void notify_dead(iobservable<T>* o) override {
+        if(o == obs)
+            obs = nullptr;
+    }
+    
+    void set_observer(iobservable<T>* o) override {
+        obs = o;
+    }
+    
+    ~listener() {
+        if(obs)
+            obs->notify_dead(this);
     }
 };
 
@@ -133,6 +193,23 @@ TEST_CASE("Assigning value triggers observer", "[observable-listener]") {
             obs = 42;
             THEN("the listener is triggered") {
                 REQUIRE(triggered);
+            }
+        }
+    }
+}
+
+TEST_CASE("destroying listener before observable must be safe", "[observable-listener]") {
+    GIVEN("an observable<int> and a listener<int>") {
+        auto obs = new observable<int>(0);
+        bool triggered = false;
+        auto lstnr = new listener<int>([&triggered](int&&){ triggered = true; });
+        
+        WHEN("the listener is destroyed and the observable triggered") {
+            obs->registerListener(*lstnr);
+            delete lstnr;
+            *obs = 37;
+            THEN("the program does not crash and the registered listener is still not triggered") {
+                REQUIRE(!triggered);
             }
         }
     }
