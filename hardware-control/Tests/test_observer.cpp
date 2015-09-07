@@ -47,7 +47,7 @@ TEST_CASE("with_destructor::add_raii","[with_destructor]") {
             bool called = false;
             std::function<void()> fun = [&called]{ called = true; };
             wd->add_raii(0, fun);
-            THEN("the functor is called when the instance is destroyed") {
+            THEN("the functor is called when the with_destructor-instance is destroyed") {
                 REQUIRE(!called);
                 wd = nullptr;
                 REQUIRE(called);
@@ -67,7 +67,7 @@ TEST_CASE("with_destructor::remove_raii","[with_destructor]") {
             wd->add_raii(123, fun);
             AND_WHEN("remove_raii() is called with the key given in the add_raii()-call") {
                 wd->remove_raii(123);
-                THEN("the functor is not called when the instance is destroyed") {
+                THEN("the functor is not called when the with_destructor-instance is destroyed") {
                     REQUIRE(!called);
                     wd = nullptr;
                     REQUIRE(!called);
@@ -265,7 +265,7 @@ TEST_CASE("Observable copy behaves exactly like the original", "[observable]") {
 }
 
 
-TEST_CASE("Observable copy does not result in segfault", "[observable][listener]") {
+TEST_CASE("Observable copy does not result in segfault", "[observable]") {
     GIVEN("an observable and a listener registered at the observable") {
         struct test_listener final : ilistener<int> {
             int value = 0;
@@ -431,7 +431,7 @@ TEST_CASE("destroying observable before listener must be safe", "[observable][li
     }
 }
 
-TEST_CASE("moving an observable into another observable keeps the listeners intact") {
+TEST_CASE("moving an observable into another observable keeps the listeners intact","[observable][listener]") {
     GIVEN("an observable and a listener") {
         observable<int> obs(0);
         bool triggered = false;
