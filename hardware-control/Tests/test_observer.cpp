@@ -68,6 +68,13 @@ public:
     {
     }
     
+    observable(const observable& other)
+    : value(other.value), listeners(other.listeners)
+    {
+        for(auto& l : listeners)
+            l->add_raii(this,[this,&l]{ unregisterListener(*l); });
+    }
+    
     ~observable() {
         for(auto& l : listeners)
             l->remove_raii(this);
@@ -94,6 +101,7 @@ public:
     }
 
 };
+
 
 
 
@@ -157,6 +165,52 @@ TEST_CASE("Register listener at observable", "[observable][listener]") {
             THEN("no exception is thrown") {
                 REQUIRE_NOTHROW(obs.registerListener(lst));
             }
+        }
+    }
+}
+
+
+TEST_CASE("Observable is copyable", "[observable][listener]") {
+    observable<int> obs(0);
+    observable<int> obsCopy(obs);
+}
+
+
+TEST_CASE("Observable copy behaves exactly like the original", "[observable][listener]") {
+    GIVEN("an observable and a listener registered at the observable") {
+        observable<int> obs(0);
+        bool triggered = false;
+        listener<int> lst([&triggered](int&&){ triggered = true; });
+        obs.registerListener(lst);
+        
+        THEN("creating a copy of the observabe and modifying the value of the copy will trigger all listeners that have been registered at the initial observable") {
+            observable<int> obsCopy(obs);
+            obsCopy = 42;
+            REQUIRE(triggered);
+        }
+    }
+}
+
+
+TEST_CASE("Observable copy does not result in segfault", "[observable][listener]") {
+    GIVEN("an observable and a listener registered at the observable") {
+        auto obs = std::make_shared<observable<int>>(0);
+        bool triggered = false;
+        auto lst = std::make_shared<listener<int>>([&triggered](int&&){ triggered = true; });
+        obs->registerListener(*lst);
+        
+        THEN("creating a copy of the observabe and destroying the original and the listener will not result in a segfault (and will not trigger the listener)") {
+            observable<int> obsCopy(*obs);
+            obs = nullptr;
+            lst = nullptr;
+            REQUIRE(!triggered);
+        }
+
+        AND_THEN("modifying the copied observable after the original has been destroyed still triggers the listener") {
+            observable<int> obsCopy(*obs);
+            obs = nullptr;
+            obsCopy = 42;
+            REQUIRE(triggered);
         }
     }
 }
