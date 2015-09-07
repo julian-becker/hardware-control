@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <memory>
 #include <list>
+#include <string>
+#include <sstream>
 #include <map>
 #include <functional>
 
@@ -180,6 +182,8 @@ public:
     {
     }
     
+    listener(const listener& other) = delete;
+    
     void handle(T&& arg) override {
         behavior(std::move(arg));
     }
@@ -187,8 +191,6 @@ public:
     ~listener() {
     }
 };
-
-
 
 TEST_CASE( "Create an observable", "[observable]" ) {
     WHEN("constructing an observable<int>") {
@@ -451,6 +453,70 @@ TEST_CASE("moving an observable into another observable keeps the listeners inta
                     REQUIRE(triggered);
                 }
             }
+        }
+    }
+}
+
+
+template <typename T> class
+dependent_value {
+   
+    struct holder {
+        virtual ~holder() {}
+        virtual const T& get_value() const = 0;
+    };
+    
+    template <typename T1> struct
+    concrete final : holder, ilistener<T1> {
+        T val;
+        std::function<T(T1)> behavior;
+
+        const T& get_value() const override {
+            return val;
+        }
+        
+        void handle(T1&& valIn) {
+            val = behavior(std::move(valIn));
+        }
+        
+        concrete(observable<T1>& o, std::function<T(T1)> fun)
+        : val(fun(static_cast<const T1&>(o))),
+          behavior(std::move(fun))
+        {
+            o.registerListener(*this);
+        }
+    };
+    
+    std::shared_ptr<holder> impl;
+    
+public:
+    template <typename T1, typename Callable>
+    dependent_value(observable<T1>& obsIn, Callable fun)
+        : impl(new concrete<T1>{obsIn,fun})
+    {
+    }
+    
+    operator const T& () const {
+        return impl->get_value();
+    }
+};
+
+TEST_CASE("dependent_value","[dependent_value]") {
+    observable<int> obs(1);
+    dependent_value<std::string> value(obs,[](int&& i){
+        return (std::stringstream() << i).str();
+    });
+    
+    WHEN("the value of the dependent value is retrieved") {
+        THEN("the retrieved value it is equal to the behavior applied to the initial value of the observable") {
+            REQUIRE(std::string("1") == static_cast<const std::string&>(value));
+        }
+    }
+    
+    AND_WHEN("assigning the observable a value") {
+        obs = 7;
+        THEN("the dependent value will be updated") {
+            REQUIRE(std::string("7") == static_cast<const std::string&>(value));
         }
     }
 }
