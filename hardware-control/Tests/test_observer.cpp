@@ -37,7 +37,7 @@ public:
 };
 
 
-TEST_CASE("With destructor","[with_destructor]") {
+TEST_CASE("with_destructor::add_raii","[with_destructor]") {
     GIVEN("an instance of with_destructor") {
         auto wd = std::make_shared<with_destructor<int>>();
         
@@ -49,6 +49,27 @@ TEST_CASE("With destructor","[with_destructor]") {
                 REQUIRE(!called);
                 wd = nullptr;
                 REQUIRE(called);
+            }
+        }
+    }
+}
+
+
+TEST_CASE("with_destructor::remove_raii","[with_destructor]") {
+    GIVEN("an instance of with_destructor") {
+        auto wd = std::make_shared<with_destructor<int>>();
+        
+        WHEN("A functor is added with add_raii(functor)") {
+            bool called = false;
+            std::function<void()> fun = [&called]{ called = true; };
+            wd->add_raii(123, fun);
+            AND_WHEN("remove_raii() is called with the key given in the add_raii()-call") {
+                wd->remove_raii(123);
+                THEN("the functor is not called when the instance is destroyed") {
+                    REQUIRE(!called);
+                    wd = nullptr;
+                    REQUIRE(!called);
+                }
             }
         }
     }
