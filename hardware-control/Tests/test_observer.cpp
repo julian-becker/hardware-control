@@ -74,7 +74,34 @@ public:
         for(auto& l : listeners)
             l->add_raii(this,[this,&l]{ unregisterListener(*l); });
     }
+
+    observable(observable&& other)
+    : value(std::move(other.value)), listeners(std::move(other.listeners))
+    {
+        for(auto& l : listeners) {
+            l->remove_raii(&other);
+            l->add_raii(this,[this,&l]{ unregisterListener(*l); });
+        }
+    }
     
+    observable& operator = (const observable& other) {
+        if(this != &other) {
+            observable copy(other);
+            *this = std::move(copy);
+        }
+        return *this;
+    }
+    
+    observable& operator = (observable&& other) {
+        listeners = std::move(other.listeners);
+        value = std::move(value);
+        for(auto& l : listeners) {
+            l->remove_raii(&other);
+            l->add_raii(this,[this,&l]{ unregisterListener(*l); });
+        }
+        return *this;
+    }
+
     ~observable() {
         for(auto& l : listeners)
             l->remove_raii(this);
@@ -323,6 +350,32 @@ TEST_CASE("destroying observable before listener must be safe", "[observable][li
             
             THEN("the program does not crash and the registered listener is still not triggered") {
                 lstnr = nullptr;
+            }
+        }
+    }
+}
+
+TEST_CASE("moving an observable into another observable keeps the listeners intact") {
+    GIVEN("an observable and a listener") {
+        observable<int> obs(0);
+        bool triggered = false;
+        auto lstnr = std::make_shared<listener<int>>([&triggered](int&&){ triggered = true; });
+        WHEN("the listener is registered it the observable") {
+            obs.registerListener(*lstnr);
+            AND_WHEN("the observable is move-constructed into a different observable") {
+                observable<int> obs2(std::move(obs));
+                THEN("modifying the moved-to observable will trigger the listener") {
+                    obs2 = 42;
+                    REQUIRE(triggered);
+                }
+            }
+            AND_WHEN("the observable is moved into a different observable") {
+                observable<int> obs2(0);
+                obs2 = std::move(obs);
+                THEN("modifying the moved-to observable will trigger the listener") {
+                    obs2 = 42;
+                    REQUIRE(triggered);
+                }
             }
         }
     }
