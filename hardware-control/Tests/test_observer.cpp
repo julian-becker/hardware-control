@@ -8,7 +8,8 @@
 #include "../catch.h"
 #include <stdio.h>
 #include <memory>
-
+#include <list>
+#include <functional>
 
 template <typename T> struct
 inotifyable {
@@ -20,6 +21,21 @@ inotify_dead {
     virtual void notify_dead(T*) = 0;
 };
 
+struct
+with_destructor {
+    std::list<std::function<void()>> functors;
+public:
+    template <typename Callable>
+    void add_raii(Callable fun) {
+        functors.emplace_back(std::move(fun));
+    }
+    
+    virtual ~with_destructor() {
+        for(auto& f : functors)
+            f();
+    }
+};
+
 template <typename T> struct
 ilistener;
 
@@ -28,12 +44,11 @@ iobservable;
 
 
 template <typename T> struct
-ilistener : inotifyable<T>, inotify_dead<iobservable<T>> {
-    virtual void set_observer(iobservable<T>*) = 0;
+ilistener : inotifyable<T>, with_destructor {
 };
 
 template <typename T> struct
-iobservable : inotify_dead<ilistener<T>> {
+iobservable : with_destructor {
 };
 
 
@@ -54,13 +69,16 @@ public:
     }
     
     ~observable() {
-        if(lstnr)
-            lstnr->notify_dead(this);
     }
 
     void registerListener(ilistener<T>& l) {
-        l.set_observer(this);
         lstnr = &l;
+        l.add_raii([this,&l]{ unregisterListener(l); });
+    }
+
+    void unregisterListener(ilistener<T>& l) {
+        if(lstnr == &l)
+            lstnr = nullptr;
     }
     
     observable& operator=(const T& val) {
@@ -73,11 +91,6 @@ public:
     operator const T& () const {
         return value;
     }
-    
-    void notify_dead(ilistener<T>* l) override {
-        if(l == lstnr)
-            lstnr = 0;
-    }
 
 };
 
@@ -87,14 +100,11 @@ public:
 template <typename T>
 class listener final : public ilistener<T> {
     std::function<void(T&&)> behavior;
-    iobservable<T>* obs;
-    friend class observable<T>;
     
 public:
     template <typename LAMBDA>
     listener(LAMBDA lam)
-      : behavior(std::forward<LAMBDA>(lam)),
-        obs(nullptr)
+      : behavior(std::forward<LAMBDA>(lam))
     {
     }
     
@@ -102,18 +112,7 @@ public:
         behavior(std::move(arg));
     }
     
-    void notify_dead(iobservable<T>* o) override {
-        if(o == obs)
-            obs = nullptr;
-    }
-    
-    void set_observer(iobservable<T>* o) override {
-        obs = o;
-    }
-    
     ~listener() {
-        if(obs)
-            obs->notify_dead(this);
     }
 };
 
