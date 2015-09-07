@@ -99,7 +99,7 @@ class observable : public iobservable<T> {
     std::set<ilistener<T>*> listeners;
     
 public:
-    observable(T value)
+    explicit observable(T value)
     : value(value)
     {
     }
@@ -317,16 +317,24 @@ TEST_CASE("Assign value to observable","[observable]") {
     }
 }
 
-TEST_CASE("Assigning value triggers observer", "[observable][listener]") {
+TEST_CASE("Assigning value triggers observer", "[observable]") {
     GIVEN("an observable<int> and a listener<int>") {
+        struct test_listener final : ilistener<int> {
+            int value = 0;
+            bool triggered = false;
+            
+            void handle(int&& i) {
+                value = i;
+                triggered = true;
+            }
+        } lstnr;
+        
         observable<int> obs(0);
-        bool triggered = false;
-        listener<int> lstnr([&triggered](int&&){ triggered = true; });
         WHEN("listener registers at observable and a value is put into the observable") {
             obs.registerListener(lstnr);
             obs = 42;
             THEN("the listener is triggered") {
-                REQUIRE(triggered);
+                REQUIRE(lstnr.triggered);
             }
         }
     }
