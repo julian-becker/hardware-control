@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <memory>
 #include <list>
+#include <map>
 #include <functional>
 
 template <typename T> struct
@@ -16,23 +17,22 @@ inotifyable {
     virtual void handle(T&&) = 0;
 };
 
-template <typename T> struct
-inotify_dead {
-    virtual void notify_dead(T*) = 0;
-};
-
-struct
+template <typename _Kty> struct
 with_destructor {
-    std::list<std::function<void()>> functors;
+    std::map<_Kty,std::function<void()>> functors;
 public:
     template <typename Callable>
-    void add_raii(Callable fun) {
-        functors.emplace_back(std::move(fun));
+    void add_raii(_Kty key, Callable fun) {
+        functors[std::move(key)] = std::move(fun);
+    }
+
+    void remove_raii(_Kty key) {
+        functors.erase(std::move(key));
     }
     
     virtual ~with_destructor() {
         for(auto& f : functors)
-            f();
+            f.second();
     }
 };
 
@@ -44,11 +44,11 @@ iobservable;
 
 
 template <typename T> struct
-ilistener : inotifyable<T>, with_destructor {
+ilistener : inotifyable<T>, with_destructor<iobservable<T>*> {
 };
 
 template <typename T> struct
-iobservable : with_destructor {
+iobservable {
 };
 
 
@@ -60,7 +60,7 @@ class listener;
 template <typename T>
 class observable : public iobservable<T> {
     T value;
-    ilistener<T>* lstnr = nullptr;
+    std::set<ilistener<T>*> listeners;
     
 public:
     observable(T value)
@@ -69,21 +69,22 @@ public:
     }
     
     ~observable() {
+        for(auto& l : listeners)
+            l->remove_raii(this);
     }
 
     void registerListener(ilistener<T>& l) {
-        lstnr = &l;
-        l.add_raii([this,&l]{ unregisterListener(l); });
+        listeners.insert(&l);
+        l.add_raii(this,[this,&l]{ unregisterListener(l); });
     }
 
     void unregisterListener(ilistener<T>& l) {
-        if(lstnr == &l)
-            lstnr = nullptr;
+        listeners.erase(&l);
     }
     
     observable& operator=(const T& val) {
         value = val;
-        if(lstnr)
+        for(auto& lstnr : listeners)
             lstnr->handle(T(val));
         return *this;
     }
@@ -192,6 +193,28 @@ TEST_CASE("Assigning value triggers observer", "[observable][listener]") {
             obs = 42;
             THEN("the listener is triggered") {
                 REQUIRE(triggered);
+            }
+        }
+    }
+}
+
+
+TEST_CASE("Assigning value triggers all listeners", "[observable][listener]") {
+    GIVEN("an observable<int> and a several listener<int>") {
+        observable<int> obs(0);
+        bool triggered1 = false, triggered2 = false, triggered3 = false;
+        listener<int> lstnr1([&triggered1](int&&){ triggered1 = true; });
+        listener<int> lstnr2([&triggered2](int&&){ triggered2 = true; });
+        listener<int> lstnr3([&triggered3](int&&){ triggered3 = true; });
+        WHEN("several listeners registers at observable and a value is put into the observable") {
+            obs.registerListener(lstnr1);
+            obs.registerListener(lstnr2);
+            obs.registerListener(lstnr3);
+            obs = 42;
+            THEN("all registered listeners are triggered") {
+                REQUIRE(triggered1);
+                REQUIRE(triggered2);
+                REQUIRE(triggered3);
             }
         }
     }
