@@ -40,20 +40,16 @@ template <typename T> struct
 ilistener;
 
 template <typename T> struct
-iobservable;
+iobservable {
+    virtual void registerListener(ilistener<T>& l) = 0;
+
+    virtual void unregisterListener(ilistener<T>& l) = 0;
+};
 
 
 template <typename T> struct
 ilistener : inotifyable<T>, with_destructor<iobservable<T>*> {
 };
-
-template <typename T> struct
-iobservable {
-};
-
-
-template <typename T>
-class listener;
 
 
 
@@ -107,12 +103,12 @@ public:
             l->remove_raii(this);
     }
 
-    void registerListener(ilistener<T>& l) {
+    void registerListener(ilistener<T>& l) override {
         listeners.insert(&l);
         l.add_raii(this,[this,&l]{ unregisterListener(l); });
     }
 
-    void unregisterListener(ilistener<T>& l) {
+    void unregisterListener(ilistener<T>& l) override {
         listeners.erase(&l);
     }
     
@@ -197,23 +193,31 @@ TEST_CASE("Register listener at observable", "[observable][listener]") {
 }
 
 
-TEST_CASE("Observable is copyable", "[observable][listener]") {
+TEST_CASE("Observable is copyable", "[observable]") {
     observable<int> obs(0);
     observable<int> obsCopy(obs);
 }
 
 
-TEST_CASE("Observable copy behaves exactly like the original", "[observable][listener]") {
+TEST_CASE("Observable copy behaves exactly like the original", "[observable]") {
     GIVEN("an observable and a listener registered at the observable") {
+        struct test_listener final : ilistener<int> {
+            int value = 0;
+            bool triggered = false;
+            
+            void handle(int&& i) {
+                value = i;
+                triggered = true;
+            }
+        } lst;
+    
         observable<int> obs(0);
-        bool triggered = false;
-        listener<int> lst([&triggered](int&&){ triggered = true; });
         obs.registerListener(lst);
         
         THEN("creating a copy of the observabe and modifying the value of the copy will trigger all listeners that have been registered at the initial observable") {
             observable<int> obsCopy(obs);
             obsCopy = 42;
-            REQUIRE(triggered);
+            REQUIRE(lst.triggered);
         }
     }
 }
