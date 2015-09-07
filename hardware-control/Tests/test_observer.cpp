@@ -36,6 +36,25 @@ public:
     }
 };
 
+
+TEST_CASE("With destructor","[with_destructor]") {
+    GIVEN("an instance of with_destructor") {
+        auto wd = std::make_shared<with_destructor<int>>();
+        
+        WHEN("A functor is added with add_raii(functor)") {
+            bool called = false;
+            std::function<void()> fun = [&called]{ called = true; };
+            wd->add_raii(0, fun);
+            THEN("the functor is called when the instance is destroyed") {
+                REQUIRE(!called);
+                wd = nullptr;
+                REQUIRE(called);
+            }
+        }
+    }
+}
+
+
 template <typename T> struct
 ilistener;
 
@@ -225,23 +244,32 @@ TEST_CASE("Observable copy behaves exactly like the original", "[observable]") {
 
 TEST_CASE("Observable copy does not result in segfault", "[observable][listener]") {
     GIVEN("an observable and a listener registered at the observable") {
+        struct test_listener final : ilistener<int> {
+            int value = 0;
+            bool triggered = false;
+            
+            void handle(int&& i) {
+                value = i;
+                triggered = true;
+            }
+        };
+        
         auto obs = std::make_shared<observable<int>>(0);
         bool triggered = false;
-        auto lst = std::make_shared<listener<int>>([&triggered](int&&){ triggered = true; });
+        auto lst = std::make_shared<test_listener>();
         obs->registerListener(*lst);
         
-        THEN("creating a copy of the observabe and destroying the original and the listener will not result in a segfault (and will not trigger the listener)") {
+        THEN("creating a copy of the observabe and destroying the original as well as the listener will not result in a segfault") {
             observable<int> obsCopy(*obs);
             obs = nullptr;
             lst = nullptr;
-            REQUIRE(!triggered);
         }
 
         AND_THEN("modifying the copied observable after the original has been destroyed still triggers the listener") {
             observable<int> obsCopy(*obs);
             obs = nullptr;
             obsCopy = 42;
-            REQUIRE(triggered);
+            REQUIRE(lst->triggered);
         }
     }
 }
