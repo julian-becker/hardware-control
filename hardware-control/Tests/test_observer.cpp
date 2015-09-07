@@ -341,29 +341,34 @@ TEST_CASE("Assigning value triggers observer", "[observable]") {
 }
 
 
-TEST_CASE("Assigning value triggers all listeners", "[observable][listener]") {
+TEST_CASE("Assigning value triggers all listeners", "[observable]") {
     GIVEN("an observable<int> and a several listener<int>") {
+        struct test_listener final : ilistener<int> {
+            int value = 0;
+            bool triggered = false;
+            
+            void handle(int&& i) {
+                value = i;
+                triggered = true;
+            }
+        } lstnr1, lstnr2, lstnr3;
         observable<int> obs(0);
-        bool triggered1 = false, triggered2 = false, triggered3 = false;
-        listener<int> lstnr1([&triggered1](int&&){ triggered1 = true; });
-        listener<int> lstnr2([&triggered2](int&&){ triggered2 = true; });
-        listener<int> lstnr3([&triggered3](int&&){ triggered3 = true; });
         WHEN("several listeners registers at observable and a value is put into the observable") {
             obs.registerListener(lstnr1);
             obs.registerListener(lstnr2);
             obs.registerListener(lstnr3);
             obs = 42;
             THEN("all registered listeners are triggered") {
-                REQUIRE(triggered1);
-                REQUIRE(triggered2);
-                REQUIRE(triggered3);
+                REQUIRE(lstnr1.triggered);
+                REQUIRE(lstnr2.triggered);
+                REQUIRE(lstnr3.triggered);
             }
         }
     }
 }
 
 
-TEST_CASE("Unregister listener", "[observable][listener]") {
+TEST_CASE("Unregister listener", "[observable]") {
     GIVEN("an observable<int> and a listener<int>") {
         observable<int> obs(0);
         bool triggered = false;
@@ -380,11 +385,19 @@ TEST_CASE("Unregister listener", "[observable][listener]") {
 }
 
 
-TEST_CASE("destroying listener before observable must be safe", "[observable][listener]") {
+TEST_CASE("destroying listener before observable must be safe", "[observable]") {
     GIVEN("an observable<int> and a listener<int>") {
+        struct test_listener final : ilistener<int> {
+            bool& triggered;
+            test_listener(bool& triggered) : triggered(triggered) {}
+            void handle(int&& i) {
+                triggered = true;
+            }
+        };
+    
         auto obs = std::make_shared<observable<int>>(0);
         bool triggered = false;
-        auto lstnr = std::make_shared<listener<int>>([&triggered](int&&){ triggered = true; });
+        auto lstnr = std::make_shared<test_listener>(triggered);
         
         WHEN("the listener is destroyed and the observable triggered") {
             obs->registerListener(*lstnr);
