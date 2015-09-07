@@ -197,6 +197,24 @@ TEST_CASE("Assigning value triggers observer", "[observable][listener]") {
     }
 }
 
+
+TEST_CASE("Unregister listener", "[observable][listener]") {
+    GIVEN("an observable<int> and a listener<int>") {
+        observable<int> obs(0);
+        bool triggered = false;
+        listener<int> lstnr([&triggered](int&&){ triggered = true; });
+        WHEN("listener registers and unregisteres at the observable and a value is put into the observable") {
+            obs.registerListener(lstnr);
+            obs.unregisterListener(lstnr);
+            obs = 42;
+            THEN("the listener is not triggered") {
+                REQUIRE(!triggered);
+            }
+        }
+    }
+}
+
+
 TEST_CASE("destroying listener before observable must be safe", "[observable][listener]") {
     GIVEN("an observable<int> and a listener<int>") {
         auto obs = std::make_shared<observable<int>>(0);
