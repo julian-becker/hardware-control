@@ -9394,7 +9394,7 @@ int main (int argc, char * const argv[]) {
 #define WHEN( desc )     SECTION( "    When: " desc, "" )
 #define AND_WHEN( desc ) SECTION( "And when: " desc, "" )
 #define THEN( desc )     SECTION( "    Then: " desc, "" )
-#define AND_THEN( desc ) SECTION( "     And: " desc, "" )
+#define AND_THEN( desc ) SECTION( "And then: " desc, "" )
 
 using Catch::Detail::Approx;
 

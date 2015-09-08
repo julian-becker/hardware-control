@@ -12,6 +12,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <queue>
 #include <functional>
 
 template <typename T> struct
@@ -532,6 +533,129 @@ TEST_CASE("dependent_value","[dependent_value]") {
         obs = 7;
         THEN("the dependent value will be updated") {
             REQUIRE(std::string("7") == static_cast<const std::string&>(value));
+        }
+    }
+}
+
+struct
+ischeduler {
+    template <typename Callable>
+    void schedule(Callable&& fun) {
+        schedule_impl(std::forward<Callable>(fun));
+    }
+    
+private:
+    virtual void schedule_impl(std::function<void()> f) = 0;
+};
+
+template <typename T> class
+observable_del_dispatch : public iobservable<T> {
+    std::set<ilistener<T>*> listeners;
+    ischeduler* const scheduler = nullptr;
+
+    void registerListener_impl(ilistener<T>& l) override {
+        listeners.insert(&l);
+    }
+
+    void unregisterListener_impl(ilistener<T>& l) override {
+        listeners.erase(&l);
+    }
+    
+public:
+    observable_del_dispatch(ischeduler& s)
+        : scheduler(&s)
+    {
+    }
+    
+    
+    observable_del_dispatch& operator = (const T& val) {
+        for(auto& lstnr : listeners)
+            scheduler->schedule([val,lstnr]{
+                lstnr->handle(T(val));
+            });
+        return *this;
+    }
+};
+
+TEST_CASE("observable with delegated dispatch","[observable_del_dispatch]") {
+    struct test_scheduler : ischeduler {
+        size_t called = 0u;
+        std::queue<std::function<void()>> tasks;
+    private:
+        void schedule_impl(std::function<void()> f) override {
+            ++called;
+            tasks.emplace(std::move(f));
+        }
+    } scheduler;
+    
+    struct test_listener : ilistener<int> {
+        bool triggered = false;
+    private:
+        void handle_impl(int&& val) {
+            triggered = true;
+        }
+    } lstnr1, lstnr2, lstnr3;
+    
+    GIVEN("an observable with delegated dispatch") {
+        observable_del_dispatch<int> obs(scheduler);
+        WHEN("the observable is triggered") {
+            obs = 14;
+            THEN("no work is delegated to the scheduler if no listeners are registered at the observable") {
+                REQUIRE(!scheduler.called);
+            }
+        }
+        
+        AND_WHEN("the observable is triggered after a listener is registered") {
+            obs.registerListener(lstnr1);
+            obs = 14;
+            THEN("work is delegated to the scheduler") {
+                REQUIRE(scheduler.called == 1);
+            }
+            AND_THEN("the listener is called with the value assigned if the scheduled task is executed") {
+                REQUIRE(!lstnr1.triggered);
+                scheduler.tasks.front()();
+                REQUIRE(lstnr1.triggered);
+                scheduler.tasks.pop();
+            }
+        }
+        
+        AND_WHEN("the observable is triggered after multiple listeners are registered") {
+            obs.registerListener(lstnr1);
+            obs.registerListener(lstnr2);
+            obs.registerListener(lstnr3);
+            obs = 14;
+            THEN("work is delegated to the scheduler in the form of several tasks") {
+                REQUIRE(scheduler.called == 3);
+            }
+            AND_THEN("the listener is called with the value assigned if the scheduled task is executed") {
+                REQUIRE(!lstnr1.triggered);
+                REQUIRE(!lstnr2.triggered);
+                REQUIRE(!lstnr3.triggered);
+                while(scheduler.tasks.size()) {
+                    scheduler.tasks.front()();
+                    scheduler.tasks.pop();
+                }
+                REQUIRE(lstnr1.triggered);
+                REQUIRE(lstnr2.triggered);
+                REQUIRE(lstnr3.triggered);
+            }
+        }
+        
+        AND_WHEN("the observable is triggered after a listener has registered and unregistered afterwards") {
+            obs.registerListener(lstnr1);
+            obs.registerListener(lstnr2);
+            obs.registerListener(lstnr3);
+            obs.unregisterListener(lstnr1);
+            obs.unregisterListener(lstnr2);
+            obs.unregisterListener(lstnr3);
+            obs = 14;
+
+            THEN("the listener is not called and no task is scheduled") {
+                REQUIRE(!lstnr1.triggered);
+                REQUIRE(!lstnr2.triggered);
+                REQUIRE(!lstnr3.triggered);
+                REQUIRE(scheduler.tasks.size() == 0);
+            }
         }
     }
 }
