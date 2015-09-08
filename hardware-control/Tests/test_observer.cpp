@@ -659,3 +659,36 @@ TEST_CASE("observable with delegated dispatch","[observable_del_dispatch]") {
         }
     }
 }
+
+TEST_CASE("observable_del_dispatch task lifetime","[observable_del_dispatch]") {
+    struct test_scheduler : ischeduler {
+        size_t called = 0u;
+        std::queue<std::function<void()>> tasks;
+    private:
+        void schedule_impl(std::function<void()> f) override {
+            ++called;
+            tasks.emplace(std::move(f));
+        }
+    } scheduler;
+    
+    struct test_listener : ilistener<int> {
+        bool triggered = false;
+    private:
+        void handle_impl(int&& val) {
+            triggered = true;
+        }
+    };
+    
+    GIVEN("an observable and a listener that is registered for the observable") {
+        auto observable = std::make_shared<observable_del_dispatch<int>>(scheduler);
+        auto listener = std::make_shared<test_listener>();
+        observable->registerListener(*listener);
+        WHEN("the observable is changed and the listener destroyed") {
+            *observable = 42;
+            listener = nullptr;
+            THEN("no task is scheduled") {
+                REQUIRE(scheduler.tasks.size() == 0);
+            }
+        }
+    }
+}
