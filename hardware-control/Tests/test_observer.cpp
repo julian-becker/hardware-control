@@ -13,6 +13,7 @@
 #include <sstream>
 #include <map>
 #include <queue>
+#include <tuple>
 #include <functional>
 
 template <typename T> struct
@@ -537,24 +538,33 @@ TEST_CASE("dependent_value","[dependent_value]") {
     }
 }
 
-struct
-ischeduler {
+template <typename TaskId> struct
+ischeduler : with_destructor<TaskId> {
     template <typename Callable>
-    void schedule(Callable&& fun) {
-        schedule_impl(std::forward<Callable>(fun));
+    void schedule(TaskId task_id, Callable&& fun) {
+        schedule_impl(std::move(task_id), std::forward<Callable>(fun));
+    }
+
+    void unschedule(TaskId task_id) {
+        unschedule_impl(std::move(task_id));
     }
     
 private:
-    virtual void schedule_impl(std::function<void()> f) = 0;
+    virtual void schedule_impl(TaskId task_id, std::function<void()> f) = 0;
+    virtual void unschedule_impl(TaskId task_id) = 0;
 };
 
 template <typename T> class
 observable_del_dispatch : public iobservable<T> {
     std::set<ilistener<T>*> listeners;
-    ischeduler* const scheduler = nullptr;
+    ischeduler<ilistener<T>*>* const scheduler;
 
     void registerListener_impl(ilistener<T>& l) override {
         listeners.insert(&l);
+        l.add_raii(this,[this,&l]{
+            this->unregisterListener(l);
+            scheduler->unschedule(&l);
+        });
     }
 
     void unregisterListener_impl(ilistener<T>& l) override {
@@ -562,15 +572,23 @@ observable_del_dispatch : public iobservable<T> {
     }
     
 public:
-    observable_del_dispatch(ischeduler& s)
+    observable_del_dispatch(ischeduler<ilistener<T>*>& s)
         : scheduler(&s)
     {
+        INFO("observable_del_dispatch: constructor");
+    }
+    
+    ~observable_del_dispatch() {
+        INFO("observable_del_dispatch: destructor");
+        for(auto& l : listeners) {
+            l->remove_raii(this);
+        }
     }
     
     
     observable_del_dispatch& operator = (const T& val) {
         for(auto& lstnr : listeners)
-            scheduler->schedule([val,lstnr]{
+            scheduler->schedule(lstnr,[val,lstnr]{
                 lstnr->handle(T(val));
             });
         return *this;
@@ -578,13 +596,19 @@ public:
 };
 
 TEST_CASE("observable with delegated dispatch","[observable_del_dispatch]") {
-    struct test_scheduler : ischeduler {
-        size_t called = 0u;
-        std::queue<std::function<void()>> tasks;
+    struct test_scheduler : ischeduler<ilistener<int>*> {
+        size_t called_schedule = 0u, called_unschedule = 0u;
+        std::queue< std::tuple<ilistener<int>*,std::function<void()>>> tasks_scheduled;
+        std::queue<ilistener<int>*> tasks_unscheduled;
+        
     private:
-        void schedule_impl(std::function<void()> f) override {
-            ++called;
-            tasks.emplace(std::move(f));
+        void schedule_impl(ilistener<int>* task_id, std::function<void()> f) override {
+            ++called_schedule;
+            tasks_scheduled.emplace(std::move(task_id),std::move(f));
+        }
+        void unschedule_impl(ilistener<int>* task_id) override {
+            ++called_unschedule;
+            tasks_unscheduled.emplace(std::move(task_id));
         }
     } scheduler;
     
@@ -601,7 +625,7 @@ TEST_CASE("observable with delegated dispatch","[observable_del_dispatch]") {
         WHEN("the observable is triggered") {
             obs = 14;
             THEN("no work is delegated to the scheduler if no listeners are registered at the observable") {
-                REQUIRE(!scheduler.called);
+                REQUIRE(!scheduler.called_schedule);
             }
         }
         
@@ -609,13 +633,15 @@ TEST_CASE("observable with delegated dispatch","[observable_del_dispatch]") {
             obs.registerListener(lstnr1);
             obs = 14;
             THEN("work is delegated to the scheduler") {
-                REQUIRE(scheduler.called == 1);
+                REQUIRE(scheduler.called_schedule == 1);
             }
             AND_THEN("the listener is called with the value assigned if the scheduled task is executed") {
                 REQUIRE(!lstnr1.triggered);
-                scheduler.tasks.front()();
+                auto task = scheduler.tasks_scheduled.front();
+                REQUIRE(std::get<0>(task) == &lstnr1);
+                std::get<1>(task)(); // execute the task
                 REQUIRE(lstnr1.triggered);
-                scheduler.tasks.pop();
+                scheduler.tasks_scheduled.pop();
             }
         }
         
@@ -625,15 +651,15 @@ TEST_CASE("observable with delegated dispatch","[observable_del_dispatch]") {
             obs.registerListener(lstnr3);
             obs = 14;
             THEN("work is delegated to the scheduler in the form of several tasks") {
-                REQUIRE(scheduler.called == 3);
+                REQUIRE(scheduler.called_schedule == 3);
             }
             AND_THEN("the listener is called with the value assigned if the scheduled task is executed") {
                 REQUIRE(!lstnr1.triggered);
                 REQUIRE(!lstnr2.triggered);
                 REQUIRE(!lstnr3.triggered);
-                while(scheduler.tasks.size()) {
-                    scheduler.tasks.front()();
-                    scheduler.tasks.pop();
+                while(scheduler.tasks_scheduled.size()) {
+                    std::get<1>(scheduler.tasks_scheduled.front())();
+                    scheduler.tasks_scheduled.pop();
                 }
                 REQUIRE(lstnr1.triggered);
                 REQUIRE(lstnr2.triggered);
@@ -654,20 +680,26 @@ TEST_CASE("observable with delegated dispatch","[observable_del_dispatch]") {
                 REQUIRE(!lstnr1.triggered);
                 REQUIRE(!lstnr2.triggered);
                 REQUIRE(!lstnr3.triggered);
-                REQUIRE(scheduler.tasks.size() == 0);
+                REQUIRE(scheduler.tasks_scheduled.size() == 0);
             }
         }
     }
 }
 
 TEST_CASE("observable_del_dispatch task lifetime","[observable_del_dispatch]") {
-    struct test_scheduler : ischeduler {
-        size_t called = 0u;
-        std::queue<std::function<void()>> tasks;
+    struct test_scheduler : ischeduler<ilistener<int>*> {
+        size_t called_schedule = 0u, called_unschedule = 0u;
+        std::queue< std::tuple<ilistener<int>*,std::function<void()>>> tasks_scheduled;
+        std::queue<ilistener<int>*> tasks_unscheduled;
+        
     private:
-        void schedule_impl(std::function<void()> f) override {
-            ++called;
-            tasks.emplace(std::move(f));
+        void schedule_impl(ilistener<int>* task_id, std::function<void()> f) override {
+            ++called_schedule;
+            tasks_scheduled.emplace(std::move(task_id),std::move(f));
+        }
+        void unschedule_impl(ilistener<int>* task_id) override {
+            ++called_unschedule;
+            tasks_unscheduled.emplace(std::move(task_id));
         }
     } scheduler;
     
@@ -685,9 +717,12 @@ TEST_CASE("observable_del_dispatch task lifetime","[observable_del_dispatch]") {
         observable->registerListener(*listener);
         WHEN("the observable is changed and the listener destroyed") {
             *observable = 42;
+            THEN("a task is scheduled") {
+                REQUIRE(scheduler.tasks_scheduled.size() == 1);
+            }
             listener = nullptr;
-            THEN("no task is scheduled") {
-                REQUIRE(scheduler.tasks.size() == 0);
+            AND_THEN("the task is scheduled when the listener is destroyed") {
+                REQUIRE(scheduler.tasks_unscheduled.size() == 1);
             }
         }
     }
