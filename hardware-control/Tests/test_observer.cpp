@@ -82,7 +82,27 @@ TEST_CASE("with_destructor::add_raii","[with_destructor]") {
                 REQUIRE(!called2);
             }
         }
+
         
+        WHEN("A functor is added that will call add_raii()") {
+            bool called1 = false, called2 = false;
+            std::function<void()> fun1 = [&called1,&called2,wd]{
+                std::function<void()> fun2 = [&called2]{
+                    called2 = true;
+                };
+                called1 = true;
+                wd->add_raii(2,fun2);
+            };
+            wd->add_raii(1, fun1);
+            THEN("the second functors that has been removed by the first is not called when the with_destructor-instance is destroyed") {
+                REQUIRE(!called1);
+                REQUIRE(!called2);
+                delete wd;
+                REQUIRE(called1);
+                REQUIRE(called2);
+            }
+        }
+
         
     }
 }
