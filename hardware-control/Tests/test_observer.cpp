@@ -16,7 +16,11 @@
 
 template <typename T> struct
 inotifyable {
-    virtual void handle(T&&) = 0;
+    void handle(T&& val) {
+        handle_impl(std::move(val));
+    }
+private:
+    virtual void handle_impl(T&&) = 0;
 };
 
 template <typename _Kty> struct
@@ -83,9 +87,18 @@ ilistener;
 
 template <typename T> struct
 iobservable {
-    virtual void registerListener(ilistener<T>& l) = 0;
+    void registerListener(ilistener<T>& l) {
+        registerListener_impl(l);
+    }
 
-    virtual void unregisterListener(ilistener<T>& l) = 0;
+    void unregisterListener(ilistener<T>& l) {
+        unregisterListener_impl(l);
+    }
+    
+private:
+    virtual void registerListener_impl(ilistener<T>& l) = 0;
+
+    virtual void unregisterListener_impl(ilistener<T>& l) = 0;
 };
 
 
@@ -99,6 +112,15 @@ template <typename T>
 class observable : public iobservable<T> {
     T value;
     std::set<ilistener<T>*> listeners;
+
+    void registerListener_impl(ilistener<T>& l) override {
+        listeners.insert(&l);
+        l.add_raii(this,[this,&l]{ this->unregisterListener(l); });
+    }
+
+    void unregisterListener_impl(ilistener<T>& l) override {
+        listeners.erase(&l);
+    }
     
 public:
     explicit observable(T value)
@@ -110,7 +132,7 @@ public:
     : value(other.value), listeners(other.listeners)
     {
         for(auto& l : listeners)
-            l->add_raii(this,[this,&l]{ unregisterListener(*l); });
+            l->add_raii(this,[this,&l]{ this->unregisterListener(*l); });
     }
 
     observable(observable&& other)
@@ -118,7 +140,7 @@ public:
     {
         for(auto& l : listeners) {
             l->remove_raii(&other);
-            l->add_raii(this,[this,&l]{ unregisterListener(*l); });
+            l->add_raii(this,[this,&l]{ this->unregisterListener(*l); });
         }
     }
     
@@ -135,7 +157,7 @@ public:
         value = std::move(value);
         for(auto& l : listeners) {
             l->remove_raii(&other);
-            l->add_raii(this,[this,&l]{ unregisterListener(*l); });
+            l->add_raii(this,[this,&l]{ this->unregisterListener(*l); });
         }
         return *this;
     }
@@ -143,15 +165,6 @@ public:
     ~observable() {
         for(auto& l : listeners)
             l->remove_raii(this);
-    }
-
-    void registerListener(ilistener<T>& l) override {
-        listeners.insert(&l);
-        l.add_raii(this,[this,&l]{ unregisterListener(l); });
-    }
-
-    void unregisterListener(ilistener<T>& l) override {
-        listeners.erase(&l);
     }
     
     observable& operator=(const T& val) {
@@ -175,6 +188,10 @@ template <typename T>
 class listener final : public ilistener<T> {
     std::function<void(T&&)> behavior;
     
+    virtual void handle_impl(T&& arg) override {
+        behavior(std::move(arg));
+    }
+
 public:
     template <typename LAMBDA>
     listener(LAMBDA lam)
@@ -183,10 +200,6 @@ public:
     }
     
     listener(const listener& other) = delete;
-    
-    void handle(T&& arg) override {
-        behavior(std::move(arg));
-    }
     
     ~listener() {
     }
@@ -246,8 +259,8 @@ TEST_CASE("Observable copy behaves exactly like the original", "[observable]") {
         struct test_listener final : ilistener<int> {
             int value = 0;
             bool triggered = false;
-            
-            void handle(int&& i) {
+        private:
+            void handle_impl(int&& i) override {
                 value = i;
                 triggered = true;
             }
@@ -270,8 +283,8 @@ TEST_CASE("Observable copy does not result in segfault", "[observable]") {
         struct test_listener final : ilistener<int> {
             int value = 0;
             bool triggered = false;
-            
-            void handle(int&& i) {
+        private:
+            void handle_impl(int&& i) override {
                 value = i;
                 triggered = true;
             }
@@ -324,8 +337,8 @@ TEST_CASE("Assigning value triggers observer", "[observable]") {
         struct test_listener final : ilistener<int> {
             int value = 0;
             bool triggered = false;
-            
-            void handle(int&& i) {
+        private:
+            void handle_impl(int&& i) override {
                 value = i;
                 triggered = true;
             }
@@ -348,8 +361,8 @@ TEST_CASE("Assigning value triggers all listeners", "[observable]") {
         struct test_listener final : ilistener<int> {
             int value = 0;
             bool triggered = false;
-            
-            void handle(int&& i) {
+        private:
+            void handle_impl(int&& i) override {
                 value = i;
                 triggered = true;
             }
@@ -392,7 +405,8 @@ TEST_CASE("destroying listener before observable must be safe", "[observable]") 
         struct test_listener final : ilistener<int> {
             bool& triggered;
             test_listener(bool& triggered) : triggered(triggered) {}
-            void handle(int&& i) {
+        private:
+            void handle_impl(int&& i) override {
                 triggered = true;
             }
         };
@@ -475,15 +489,16 @@ dependent_value {
             return val;
         }
         
-        void handle(T1&& valIn) {
-            val = behavior(std::move(valIn));
-        }
-        
         concrete(observable<T1>& o, std::function<T(T1)> fun)
         : val(fun(static_cast<const T1&>(o))),
           behavior(std::move(fun))
         {
             o.registerListener(*this);
+        }
+        
+    private:
+        void handle_impl(T1&& valIn) override {
+            val = behavior(std::move(valIn));
         }
     };
     
