@@ -15,15 +15,7 @@
 #include <queue>
 #include <tuple>
 #include <functional>
-
-template <typename T> struct
-inotifyable {
-    void handle(T&& val) {
-        handle_impl(std::move(val));
-    }
-private:
-    virtual void handle_impl(T&&) = 0;
-};
+#include <TDD/inotifyable.h>
 
 template <typename _Kty> struct
 with_destructor {
@@ -40,7 +32,7 @@ public:
     
     virtual ~with_destructor() {
         while(functors.size()) {
-            auto front = functors.begin();
+            const auto front = functors.begin();
             front->second();
             functors.erase(front->first);
         }
@@ -296,8 +288,16 @@ TEST_CASE("Register listener at observable", "[observable][listener]") {
 
 
 TEST_CASE("Observable is copyable", "[observable]") {
-    observable<int> obs(0);
-    observable<int> obsCopy(obs);
+    GIVEN("an observable") {
+        observable<int> obs(37);
+        WHEN("a copy is made") {
+            observable<int> obsCopy(obs);
+
+            THEN("the copy has the same value as the original") {
+                REQUIRE(obsCopy == obs);
+            }
+        }
+    }
 }
 
 
