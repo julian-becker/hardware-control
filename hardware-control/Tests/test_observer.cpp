@@ -18,12 +18,7 @@
 #include <TDD/inotifyable.h>
 #include <TDD/with_destructor.h>
 #include <TDD/iobservable.h>
-
-
-template <typename T> struct
-ilistener : inotifyable<T>, with_destructor<iobservable<T>*> {
-};
-
+#include <TDD/ilistener.h>
 
 
 template <typename T>
