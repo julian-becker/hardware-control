@@ -30,6 +30,7 @@
 		B93D45DA1BA0B719002B6F51 /* inotifyable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inotifyable.h; sourceTree = "<group>"; };
 		B93D45DC1BA0B808002B6F51 /* with_destructor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = with_destructor.h; sourceTree = "<group>"; };
 		B93D45DD1BA0B9A6002B6F51 /* with_destructor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = with_destructor.cpp; sourceTree = "<group>"; };
+		B93D45DF1BA0BA7B002B6F51 /* iobservable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iobservable.h; sourceTree = "<group>"; };
 		B9652E3A1B3B384D00141CAF /* Any.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Any.h; path = Framework/Any.h; sourceTree = "<group>"; };
 		B980138E197289AD00373737 /* hardware-control */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "hardware-control"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B9BFAAEE1B388376006471ED /* IVisitor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IVisitor.h; path = Framework/Interfaces/IVisitor.h; sourceTree = "<group>"; };
@@ -76,6 +77,7 @@
 				B93D45DA1BA0B719002B6F51 /* inotifyable.h */,
 				B93D45DC1BA0B808002B6F51 /* with_destructor.h */,
 				B93D45DD1BA0B9A6002B6F51 /* with_destructor.cpp */,
+				B93D45DF1BA0BA7B002B6F51 /* iobservable.h */,
 			);
 			path = TDD;
 			sourceTree = "<group>";

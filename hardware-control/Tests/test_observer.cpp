@@ -17,27 +17,7 @@
 #include <functional>
 #include <TDD/inotifyable.h>
 #include <TDD/with_destructor.h>
-
-
-
-template <typename T> struct
-ilistener;
-
-template <typename T> struct
-iobservable {
-    void registerListener(ilistener<T>& l) {
-        registerListener_impl(l);
-    }
-
-    void unregisterListener(ilistener<T>& l) {
-        unregisterListener_impl(l);
-    }
-    
-private:
-    virtual void registerListener_impl(ilistener<T>& l) = 0;
-
-    virtual void unregisterListener_impl(ilistener<T>& l) = 0;
-};
+#include <TDD/iobservable.h>
 
 
 template <typename T> struct
