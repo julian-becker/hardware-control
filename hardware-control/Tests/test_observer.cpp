@@ -16,28 +16,8 @@
 #include <tuple>
 #include <functional>
 #include <TDD/inotifyable.h>
+#include <TDD/with_destructor.h>
 
-template <typename _Kty> struct
-with_destructor {
-    std::map<_Kty,std::function<void()>> functors;
-public:
-    template <typename Callable>
-    void add_raii(_Kty key, Callable fun) {
-        functors[std::move(key)] = std::move(fun);
-    }
-
-    void remove_raii(_Kty key) {
-        functors.erase(std::move(key));
-    }
-    
-    virtual ~with_destructor() {
-        while(functors.size()) {
-            const auto front = functors.begin();
-            front->second();
-            functors.erase(front->first);
-        }
-    }
-};
 
 
 TEST_CASE("with_destructor::add_raii","[with_destructor]") {
