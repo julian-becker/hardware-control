@@ -1,5 +1,6 @@
 #pragma once
 #include <TDD/with_destructor.h>
+#include <TDD/inotifyable.h>
 
 template <typename T> struct
 iobservable;
