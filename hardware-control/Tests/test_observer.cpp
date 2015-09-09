@@ -23,53 +23,6 @@
 
 
 
-
-template <typename T>
-class listener final : public ilistener<T> {
-    std::function<void(T&&)> behavior;
-    
-    virtual void handle_impl(T&& arg) override {
-        behavior(std::move(arg));
-    }
-
-public:
-    template <typename LAMBDA>
-    listener(LAMBDA lam)
-      : behavior(std::forward<LAMBDA>(lam))
-    {
-    }
-    
-    listener(const listener& other) = delete;
-    
-    ~listener() {
-    }
-};
-
-
-
-
-
-TEST_CASE( "Create a listener", "[listener]" ) {
-    WHEN("constructing an listener<int>") {
-        THEN("no exception is thrown") {
-            REQUIRE_NOTHROW(listener<int>([](int&&){}));
-        }
-    }
-}
-
-TEST_CASE("Register listener at observable", "[observable][listener]") {
-    GIVEN("a listener and an observable") {
-        observable<int> obs(0);
-        listener<int>   lst([](int&&){});
-        WHEN("registering the listener at the observable") {
-            THEN("no exception is thrown") {
-                REQUIRE_NOTHROW(obs.registerListener(lst));
-            }
-        }
-    }
-}
-
-
 template <typename T> class
 dependent_value {
    
