@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B93D45DE1BA0B9A6002B6F51 /* with_destructor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B93D45DD1BA0B9A6002B6F51 /* with_destructor.cpp */; };
-		B93D45E31BA0BBC3002B6F51 /* observable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B93D45E11BA0BBC3002B6F51 /* observable.cpp */; };
+		B93D45DE1BA0B9A6002B6F51 /* with_destructor_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B93D45DD1BA0B9A6002B6F51 /* with_destructor_test.cpp */; };
+		B93D45E31BA0BBC3002B6F51 /* observable_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B93D45E11BA0BBC3002B6F51 /* observable_test.cpp */; };
 		B9BFAB031B39E15B006471ED /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9BFAB021B39E15B006471ED /* main.cpp */; };
 		B9CB5E1F1B8E5A4B00010456 /* test_any.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9CB5E1E1B8E5A4B00010456 /* test_any.cpp */; };
 		B9CB5E231B8E5ACF00010456 /* test_motorctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9CB5E221B8E5ACF00010456 /* test_motorctrl.cpp */; };
@@ -30,10 +30,10 @@
 /* Begin PBXFileReference section */
 		B93D45DA1BA0B719002B6F51 /* inotifyable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inotifyable.h; sourceTree = "<group>"; };
 		B93D45DC1BA0B808002B6F51 /* with_destructor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = with_destructor.h; sourceTree = "<group>"; };
-		B93D45DD1BA0B9A6002B6F51 /* with_destructor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = with_destructor.cpp; sourceTree = "<group>"; };
+		B93D45DD1BA0B9A6002B6F51 /* with_destructor_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = with_destructor_test.cpp; sourceTree = "<group>"; };
 		B93D45DF1BA0BA7B002B6F51 /* iobservable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iobservable.h; sourceTree = "<group>"; };
 		B93D45E01BA0BB32002B6F51 /* ilistener.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ilistener.h; sourceTree = "<group>"; };
-		B93D45E11BA0BBC3002B6F51 /* observable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = observable.cpp; sourceTree = "<group>"; };
+		B93D45E11BA0BBC3002B6F51 /* observable_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = observable_test.cpp; sourceTree = "<group>"; };
 		B93D45E21BA0BBC3002B6F51 /* observable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = observable.h; sourceTree = "<group>"; };
 		B9652E3A1B3B384D00141CAF /* Any.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Any.h; path = Framework/Any.h; sourceTree = "<group>"; };
 		B980138E197289AD00373737 /* hardware-control */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "hardware-control"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -80,10 +80,10 @@
 			children = (
 				B93D45DA1BA0B719002B6F51 /* inotifyable.h */,
 				B93D45DC1BA0B808002B6F51 /* with_destructor.h */,
-				B93D45DD1BA0B9A6002B6F51 /* with_destructor.cpp */,
+				B93D45DD1BA0B9A6002B6F51 /* with_destructor_test.cpp */,
 				B93D45DF1BA0BA7B002B6F51 /* iobservable.h */,
 				B93D45E01BA0BB32002B6F51 /* ilistener.h */,
-				B93D45E11BA0BBC3002B6F51 /* observable.cpp */,
+				B93D45E11BA0BBC3002B6F51 /* observable_test.cpp */,
 				B93D45E21BA0BBC3002B6F51 /* observable.h */,
 			);
 			path = TDD;
@@ -287,10 +287,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B93D45E31BA0BBC3002B6F51 /* observable.cpp in Sources */,
+				B93D45E31BA0BBC3002B6F51 /* observable_test.cpp in Sources */,
 				B9CB5E1F1B8E5A4B00010456 /* test_any.cpp in Sources */,
 				B9F77A611B98DB27002867BA /* test_observer.cpp in Sources */,
-				B93D45DE1BA0B9A6002B6F51 /* with_destructor.cpp in Sources */,
+				B93D45DE1BA0B9A6002B6F51 /* with_destructor_test.cpp in Sources */,
 				B9CB5E231B8E5ACF00010456 /* test_motorctrl.cpp in Sources */,
 				B9BFAB031B39E15B006471ED /* main.cpp in Sources */,
 			);
