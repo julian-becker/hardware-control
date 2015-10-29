@@ -62,13 +62,24 @@ TEST_CASE("constexpr tuple") {
     STATIC_ASSERT(t[3_cst] == 0xAAAAAAAAAAAAAAAALL);
 }
 
+
 TEST_CASE("constexpr array") {
     using namespace cst;
     constexpr array<5,char> t{'A','B','C','D','E'};
+    
     STATIC_ASSERT(t[0] == 'A');
     STATIC_ASSERT(t[0_cst] == 'A');
     STATIC_ASSERT(t[val<int>(3)] == 'D');
+
+    constexpr array<5,char> t1 = "uiae";
+    STATIC_ASSERT(t1[0] == 'u');
+    STATIC_ASSERT(t1[1] == 'i');
+    STATIC_ASSERT(t1[2] == 'a');
+    STATIC_ASSERT(t1[3] == 'e');
+    STATIC_ASSERT(t1[4] == '\0');
 }
+
+
 
 TEST_CASE("mapping constexpr values") {
     using namespace cst;

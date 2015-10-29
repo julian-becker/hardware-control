@@ -1,6 +1,6 @@
 #pragma once
 #include <utility>
-
+#include <type_traits>
 
 namespace cst {
     namespace {
@@ -234,32 +234,6 @@ namespace cst {
         };
         
         
-
-        
-        template <int SIZE, typename ElemT> class
-        array {
-            const ElemT vals[SIZE];
-        public:
-            template <typename...TS>
-            constexpr array(TS...vals)
-                : vals{vals...}
-            {}
-            
-            template <int Index>
-            constexpr ElemT operator [](int_t<Index>) const {
-                return vals[Index];
-            }
-
-            constexpr ElemT operator [](int index) const {
-                return vals[index];
-            }
-
-            constexpr ElemT operator [](val<int> index) const {
-                return vals[index];
-            }
-        };
-        
-        
         namespace detail {
             template<class T> using Invoke = typename T::type;
 
@@ -283,6 +257,48 @@ namespace cst {
             template<> struct gen_seq<0> : seq<>{};
             template<> struct gen_seq<1> : seq<0>{};
         }
+        
+
+        
+        template <int SIZE, typename ElemT> class
+        array {
+            const ElemT vals[SIZE];
+            
+            template <int...IndexPack, typename = void>
+            constexpr array(detail::seq<IndexPack...>, const ElemT (&vals)[SIZE])
+                : vals{vals[IndexPack]...}
+            {}
+            
+        public:
+            template <typename T, typename...TS, typename = std::enable_if_t<!std::is_same<T,detail::gen_seq<SIZE>>::value>>
+            constexpr array(T v, TS...vals)
+                : vals{v, vals...}
+            {}
+            
+    /*        template <typename...TS>
+            constexpr array(TS...vals)
+                : vals{vals...}
+            {}*/
+
+            constexpr array(const ElemT (&vals)[SIZE] )
+                : array(detail::gen_seq<SIZE>{}, vals)
+            {}
+            
+            template <int Index>
+            constexpr ElemT operator [](int_t<Index>) const {
+                return vals[Index];
+            }
+
+            constexpr ElemT operator [](int index) const {
+                return vals[index];
+            }
+
+            constexpr ElemT operator [](val<int> index) const {
+                return vals[index];
+            }
+        };
+        
+        
         
         template <int SIZE, typename KeyT, typename ValueT> class
         map {
