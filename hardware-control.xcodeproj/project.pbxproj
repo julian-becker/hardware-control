@@ -13,6 +13,7 @@
 		B9BFAB031B39E15B006471ED /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9BFAB021B39E15B006471ED /* main.cpp */; };
 		B9CB5E1F1B8E5A4B00010456 /* test_any.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9CB5E1E1B8E5A4B00010456 /* test_any.cpp */; };
 		B9CB5E231B8E5ACF00010456 /* test_motorctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9CB5E221B8E5ACF00010456 /* test_motorctrl.cpp */; };
+		B9F579C01BE29531008EC8F4 /* const_objects_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9F579BE1BE29531008EC8F4 /* const_objects_test.cpp */; };
 		B9F77A611B98DB27002867BA /* test_observer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9F77A601B98DB27002867BA /* test_observer.cpp */; };
 /* End PBXBuildFile section */
 
@@ -64,6 +65,8 @@
 		B9CB5E1C1B8E59B500010456 /* catch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = catch.h; sourceTree = "<group>"; };
 		B9CB5E1E1B8E5A4B00010456 /* test_any.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_any.cpp; sourceTree = "<group>"; };
 		B9CB5E221B8E5ACF00010456 /* test_motorctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_motorctrl.cpp; sourceTree = "<group>"; };
+		B9F579BE1BE29531008EC8F4 /* const_objects_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = const_objects_test.cpp; sourceTree = "<group>"; };
+		B9F579BF1BE29531008EC8F4 /* const_objects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = const_objects.h; sourceTree = "<group>"; };
 		B9F77A601B98DB27002867BA /* test_observer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test_observer.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -90,6 +93,8 @@
 				B93D45E21BA0BBC3002B6F51 /* observable.h */,
 				B93D45E41BA0C02E002B6F51 /* listener.cpp */,
 				B93D45E51BA0C02E002B6F51 /* listener.h */,
+				B9F579BE1BE29531008EC8F4 /* const_objects_test.cpp */,
+				B9F579BF1BE29531008EC8F4 /* const_objects.h */,
 			);
 			path = TDD;
 			sourceTree = "<group>";
@@ -298,6 +303,7 @@
 				B93D45DE1BA0B9A6002B6F51 /* with_destructor_test.cpp in Sources */,
 				B9CB5E231B8E5ACF00010456 /* test_motorctrl.cpp in Sources */,
 				B9BFAB031B39E15B006471ED /* main.cpp in Sources */,
+				B9F579C01BE29531008EC8F4 /* const_objects_test.cpp in Sources */,
 				B93D45E61BA0C02E002B6F51 /* listener.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
