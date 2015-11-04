@@ -63,6 +63,13 @@ TEST_CASE("constexpr tuple") {
 }
 
 
+constexpr cst::array<5,int> create_array() {
+    cst::array<5,int> a{0,0,0,0};
+    a[0] = 7;
+    a[3] = 1;
+    return a;
+}
+
 TEST_CASE("constexpr array") {
     using namespace cst;
     constexpr array<5,char> t{'A','B','C','D','E'};
@@ -79,7 +86,28 @@ TEST_CASE("constexpr array") {
     STATIC_ASSERT(t1[4] == '\0');
 }
 
+TEST_CASE("printing an array") {
+    using namespace cst;
+    constexpr array<5,char> t1 = "uiae";
+    for(const auto& v : t1)
+        std::cout << "v = " << v << std::endl;
+    
+    std::cout << "t1 = " << t1 << std::endl;
+    constexpr array<4,int> t2 = {1,2,3,4};
+    std::cout << "t2 = " << t2 << std::endl;
+}
 
+
+TEST_CASE("printing a map") {
+    using namespace cst;
+    constexpr auto m = map<0,int,double>()
+                        .insert(0,3.141)
+                        .insert(2,2.717)
+                        .insert(2,27)
+                        .insert(7,12345.6789);
+    
+    std::cout << m << std::endl;
+}
 
 TEST_CASE("mapping constexpr values") {
     using namespace cst;
