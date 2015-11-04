@@ -141,6 +141,11 @@ namespace cst {
             const ElemT2 elem2;
             
         public:
+            constexpr pair()
+                : elem1{}
+                , elem2{}
+            {}
+
             constexpr pair(ElemT1 elem1, ElemT2 elem2)
                 : elem1(elem1)
                 , elem2(elem2)
@@ -150,6 +155,12 @@ namespace cst {
                 : elem1(other.elem1)
                 , elem2(other.elem2)
             {}
+            
+            constexpr ElemT1& first() { return elem1; }
+            constexpr const ElemT1& first() const { return elem1; }
+
+            constexpr ElemT2& second() { return elem2; }
+            constexpr const ElemT2& second() const { return elem2; }
             
             template <int Index>
             constexpr std::enable_if_t<Index == 0, ElemT1> operator [](int_t<Index>) const {
@@ -262,11 +273,16 @@ namespace cst {
         
         template <int SIZE, typename ElemT> class
         array {
-            const ElemT vals[SIZE];
+            ElemT vals[SIZE];
             
             template <int...IndexPack, typename = void>
             constexpr array(detail::seq<IndexPack...>, const ElemT (&vals)[SIZE])
                 : vals{vals[IndexPack]...}
+            {}
+
+            template <int...IndexPack, typename = void>
+            constexpr array(detail::seq<IndexPack...>)
+                : vals{(IndexPack,ElemT{})...}
             {}
             
         public:
@@ -274,31 +290,71 @@ namespace cst {
             constexpr array(T v, TS...vals)
                 : vals{v, vals...}
             {}
-            
-    /*        template <typename...TS>
-            constexpr array(TS...vals)
-                : vals{vals...}
-            {}*/
 
             constexpr array(const ElemT (&vals)[SIZE] )
                 : array(detail::gen_seq<SIZE>{}, vals)
             {}
+
+            constexpr array()
+                : array(detail::gen_seq<SIZE>{})
+            {}
             
             template <int Index>
-            constexpr ElemT operator [](int_t<Index>) const {
+            constexpr ElemT& operator [](int_t<Index>) {
                 return vals[Index];
             }
 
-            constexpr ElemT operator [](int index) const {
+            template <int Index>
+            constexpr const ElemT& operator [](int_t<Index>) const {
+                return vals[Index];
+            }
+
+            constexpr ElemT& operator [](int index) {
                 return vals[index];
             }
 
-            constexpr ElemT operator [](val<int> index) const {
+            constexpr const ElemT& operator [](int index) const {
                 return vals[index];
             }
+
+            constexpr ElemT& operator [](val<int> index) {
+                return vals[index];
+            }
+
+            constexpr const ElemT& operator [](val<int> index) const {
+                return vals[index];
+            }
+            
+            using const_iterator = const ElemT*;
+            using iterator = ElemT*;
+            
+            constexpr const_iterator cbegin() const { return &vals[0]; }
+            constexpr const_iterator begin() const { return &vals[0]; }
+            constexpr iterator begin() { return &vals[0]; }
+
+            constexpr const_iterator cend() const { return &vals[SIZE]; }
+            constexpr const_iterator end() const { return &vals[SIZE]; }
+            constexpr iterator end() { return &vals[SIZE]; }
         };
         
         
+        template <typename T, int SZ>
+        std::enable_if_t<std::is_same<T,char>::value,std::ostream>& operator << (std::ostream& ostr, const array<SZ,T>& arr) {
+            for(const auto& el : arr)
+                ostr << el;
+            return ostr;
+        }
+
+        template <typename T, int SZ>
+        std::enable_if_t<!std::is_same<T,char>::value,std::ostream>&  operator << (std::ostream& ostr, const array<SZ,T>& arr) {
+            bool first = true;
+            for(const auto& el : arr) {
+                ostr << (first ? "[" : ",") << el;
+                first = false;
+            }
+            ostr << "]";
+            return ostr;
+        }
         
         template <int SIZE, typename KeyT, typename ValueT> class
         map {
@@ -313,8 +369,6 @@ namespace cst {
             
 
             
-            
-        public:
             template <int...IndexPack>
             constexpr map<SIZE+1,KeyT,ValueT>
             aux_construct(detail::seq<IndexPack...>, ElemT newElem) const {
@@ -322,7 +376,7 @@ namespace cst {
             }
             
         public:
-            template <typename...TS>
+            template <typename...TS,typename = std::enable_if_t<sizeof...(TS)==SIZE>>
             constexpr map(TS...pairs)
                 : entries{pairs...}
             {}
@@ -339,7 +393,29 @@ namespace cst {
             insert(KeyT key, ValueT value) const {
                 return aux_construct(detail::gen_seq<SIZE>{}, ElemT(key,value));
             }
+            
+            using iterator = pair<KeyT,ValueT>*;
+            using const_iterator = pair<KeyT,ValueT> const *;
+            
+            constexpr iterator begin() { return &entries[0]; }
+            constexpr const_iterator begin() const { return &entries[0]; }
+            constexpr iterator end() { return &entries[SIZE]; }
+            constexpr const_iterator end() const { return &entries[SIZE]; }
+            
+            
         };
+        
+        
+        template <int SZ,typename KeyT, typename ValueT>
+        std::ostream& operator << (std::ostream& ostr, const map<SZ,KeyT,ValueT>& m) {
+            bool first = true;
+            for(const auto& kv_pair : m) {
+                ostr << (first? "{" : ", ") << kv_pair[0_cst] << ": " << kv_pair[1_cst];
+                first = false;
+            }
+            ostr << "}";
+            return ostr;
+        }
             
         
     }
