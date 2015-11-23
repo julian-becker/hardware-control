@@ -2,6 +2,8 @@
 #include <TDD/interruptible.h>
 #include <type_traits>
 #include <future>
+#include <list>
+#include <iostream>
 
 TEST_CASE("interruptible interface") {
 
@@ -68,7 +70,7 @@ TEST_CASE("Interruptible semaphore") {
 };
 
 TEST_CASE("queue") {
-    queue<int> q;
+    queue<size_t> q;
     
     SECTION("pushing one element") {
         q.push(1);
@@ -92,11 +94,24 @@ TEST_CASE("queue") {
     }
     
     SECTION("pushing from multiple threads") {
-        auto thread1 = std::async(std::launch::async,[&]{ q.push(1); });
-        auto thread2 = std::async(std::launch::async,[&]{ q.push(2); });
-        auto thread3 = std::async(std::launch::async,[&]{ q.push(3); });
-        REQUIRE_NOTHROW(q.wait_and_pop());
-        REQUIRE_NOTHROW(q.wait_and_pop());
-        REQUIRE_NOTHROW(q.wait_and_pop());
+        std::list<std::thread> threads;
+        std::atomic<size_t> count(0u);
+        constexpr size_t N = 500;
+        
+        for(size_t i=0; i<N; i++) {
+            threads.emplace_back(std::thread([&q,&count,i]{
+                q.push(i);
+                ++count;
+            }));
+            threads.back().detach();
+        }
+
+        for(size_t i=0; i<N; i++) {
+            size_t v;
+            REQUIRE_NOTHROW(v = q.wait_and_pop());
+            --count;
+        }
+        
+        REQUIRE(count == 0u);
     }
 }
