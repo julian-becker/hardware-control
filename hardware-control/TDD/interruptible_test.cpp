@@ -115,3 +115,58 @@ TEST_CASE("queue") {
         REQUIRE(count == 0u);
     }
 }
+
+
+TEST_CASE("stack") {
+    GIVEN("a stack") {
+        deque<int> s;
+        WHEN("pushing 1, 2, 3, 4, 5") {
+            s.push_front(1);
+            s.push_front(2);
+            s.push_front(3);
+            s.push_front(4);
+            s.push_front(5);
+            THEN("pop will return the last value pushed") {
+                REQUIRE(5 == s.pop_front());
+                REQUIRE(4 == s.pop_front());
+                REQUIRE(3 == s.pop_front());
+                REQUIRE(2 == s.pop_front());
+                REQUIRE(1 == s.pop_front());
+                REQUIRE_THROWS_AS(s.pop_front(), std::out_of_range);
+            }
+        }
+    }
+}
+
+TEST_CASE("stack destruction") {
+    GIVEN("a deque") {
+        struct test_val {
+            std::function<void(void)> fun;
+            ~test_val() { fun(); }
+        };
+        deque<test_val>* s = new deque<test_val>();
+        WHEN("pushing several instances") {
+            bool inst1_destroyed = false, inst2_destroyed = false, inst3_destroyed = false, inst4_destroyed = false;
+            s->push_front({[&]{ inst1_destroyed = true; }});
+            s->push_front({[&]{ inst2_destroyed = true; }});
+            s->push_front({[&]{ inst3_destroyed = true; }});
+            s->push_front({[&]{ inst4_destroyed = true; }});
+            THEN("pop will return the last value pushed") {
+                delete s;
+                REQUIRE(inst1_destroyed);
+                REQUIRE(inst2_destroyed);
+                REQUIRE(inst3_destroyed);
+                REQUIRE(inst4_destroyed);
+            }
+        }
+    }
+}
+
+TEST_CASE("deque: push_front -> pop_back") {
+    deque<int> d;
+    d.push_front(1);
+    d.push_front(2);
+    REQUIRE(1 == d.pop_back());    
+    REQUIRE(2 == d.pop_back());
+}
+

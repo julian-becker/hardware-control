@@ -11,6 +11,9 @@ namespace cst {
             static constexpr T value = val;
         };
         
+        template <typename T, T val> constexpr T
+        val_t<T,val>::value;
+        
         template <int N> using int_t = val_t<int,N>;
         
         template <typename T1, T1 N1, typename T2, T2 N2>

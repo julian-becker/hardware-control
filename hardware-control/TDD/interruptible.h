@@ -1,6 +1,6 @@
 #pragma once
 #include <atomic>
-#include <queue>
+#include <exception>
 
 class interruptible {
     virtual void interrupt_impl() = 0;
@@ -58,9 +58,69 @@ public:
     }
 };
 
+
+template <typename T> class
+deque {
+    struct node {
+        T value;
+        node* next;
+        node* prev;
+    };
+    
+    node* front = nullptr;
+    node* back = nullptr;
+    
+public:
+    deque() {};
+    ~deque() {
+        for(auto nod = front; nod != nullptr; nod = nod->next) {
+            delete nod;
+        }
+            
+    }
+    
+    void push_front(T&& val) {
+        auto nod = new node{std::move(val), nullptr, nullptr};
+        if(!front) {
+            front = nod;
+            back  = nod;
+            return;
+        }
+        front->prev = nod;
+        nod->next = front;
+        front = nod;
+    }
+    
+    T pop_front() {
+        if(!front)
+            throw std::out_of_range("Cannot pop without pushing first");
+        T val = std::move(front->value);
+        auto old_node = front;
+        front = front->next;
+        if(front)
+            front->prev = nullptr;
+        delete old_node;
+        return val;
+    }
+    
+    T pop_back() {
+        if(!front)
+            throw std::out_of_range("Cannot pop without pushing first");
+        T val = std::move(back->value);
+        auto old_node = back;
+        back = back->prev;
+        if(back)
+            back->next = nullptr;
+        else
+            front = nullptr;
+        delete old_node;
+        return val;
+    }
+};
+
 template <typename T>
 class queue : public interruptible {
-    std::queue<T> q;
+    deque<T> q;
     std::mutex mutex;
     semaphore sem;
     
@@ -76,7 +136,7 @@ public:
     void push(T i) {
         {
             std::lock_guard<std::mutex> lock(mutex);
-            q.push(std::move(i));
+            q.push_front(std::move(i));
         }
         sem.post();
     }
@@ -84,11 +144,12 @@ public:
     T wait_and_pop() {
         sem.wait();
         std::lock_guard<std::mutex> lock(mutex);
-        auto val = std::move(q.front());
-        q.pop();
+        auto val = std::move(q.pop_back());
         return val;
     }
 };
+
+
 
 
 

@@ -6,6 +6,7 @@
 #define STATIC_ASSERT(...)              \
     do {                                \
         static_assert(__VA_ARGS__,"");  \
+        REQUIRE(__VA_ARGS__);           \
     } while(false)
 
 
