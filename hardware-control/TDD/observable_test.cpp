@@ -201,7 +201,7 @@ TEST_CASE("destroying listener before observable must be safe", "[observable]") 
             obs->registerListener(*lstnr);
             lstnr=0;
             *obs = 37;
-            THEN("the program does not crash");
+            THEN("the program does not crash") {}
         }
     }
 }
@@ -217,7 +217,7 @@ TEST_CASE("destroying observable before listener must be safe", "[observable][li
             delete obs;
             delete lstnr;
             
-            THEN("the registered listener can be safely destructed and the program does not crash");
+            THEN("the registered listener can be safely destructed and the program does not crash") {}
         }
     }
 }
