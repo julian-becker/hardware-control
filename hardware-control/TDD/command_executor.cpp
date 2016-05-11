@@ -11,6 +11,7 @@
 #include <typeindex>
 #include <mutex>
 #include <map>
+#include <iostream>
 
 
 template <int...>
@@ -43,7 +44,7 @@ tuple_element<N,LIST_T<T,ELMS...>> {
 
 // create a convenience wrapper for the template
 template <unsigned N, typename LIST> using
-type_at_t = typename tuple_element<N, LIST>::type;
+type_at = typename tuple_element<N, LIST>::type;
 
 
 class LockableDevice {
@@ -71,8 +72,8 @@ public:
     }
     
     template <typename Device>
-    Device& access () {
-        return *device;
+    Device* access () {
+        return static_cast<Device*>(device.get());
     }
     
     std::type_index getID() {
@@ -89,10 +90,11 @@ template <typename> using MapToLockableDevice = LockableDevice;
 
 
 class ResourceProvider {
+    std::mutex mutex;
     std::map<std::type_index, std::unique_ptr<LockableDevice>> deviceMap;
     
     template <typename T1, typename T2, typename...Ts>
-    auto lock(T1& t1, T2& t2, Ts&... ts) {
+    static auto lock(T1& t1, T2& t2, Ts&... ts) {
         std::lock(t1, t2, ts...);
         return std::shared_ptr<void>(nullptr,[&](void*){
             t1.unlock(), t2.unlock();
@@ -101,7 +103,7 @@ class ResourceProvider {
     }
     
     template <typename T1>
-    auto lock(T1& t1) {
+    static auto lock(T1& t1) {
         t1.lock();
         return std::shared_ptr<void>(nullptr,[&](void*){ t1.unlock(); });
     }
@@ -109,8 +111,15 @@ class ResourceProvider {
 public:
     template <typename T, typename...Ts>
     auto acquire(requires<T,Ts...>) {
+        std::lock_guard<std::mutex> selfProtect(mutex);
         auto lockScope = lock(*deviceMap.at(std::type_index(typeid(T))), *deviceMap.at(std::type_index(typeid(Ts)))...);
-        return std::make_pair(std::move(lockScope), std::make_tuple(std::make_shared<T>(), std::make_shared<Ts>()...));
+        return std::make_pair(
+            std::move(lockScope),
+            std::make_tuple(
+                deviceMap.at(std::type_index(typeid(T)))->access<T>(),
+                deviceMap.at(std::type_index(typeid(Ts)))->access<Ts>()...
+            )
+        );
     }
     
     auto acquire(requires<>) {
@@ -119,13 +128,13 @@ public:
     
     template <typename T>
     void registerDevice(std::unique_ptr<T> device) {
+        std::lock_guard<std::mutex> selfProtect(mutex);
         auto lockDev = std::make_unique<LockableDevice>(std::move(device));
         deviceMap.emplace(std::make_pair(std::type_index(typeid(T)), std::move(lockDev)));
     }
 };
 
 
-template <typename ... ResourceInterfaces>
 class Executor {
     std::unique_ptr<ResourceProvider> resourceProvider;
     
@@ -151,12 +160,16 @@ public:
 
 TEST_CASE("Executor", "[executor]") {
     GIVEN("An executor and a resource provider") {
-        struct Device1{};
-        struct Device2{};
+        struct Device1{
+            void operation1() { std::cout << " called operation1" << std::endl; }
+        };
+        struct Device2{
+            void operation2() { std::cout << " called operation2" << std::endl; }
+        };
         auto provider = std::make_unique<ResourceProvider>();
         provider->registerDevice(std::make_unique<Device1>());
         provider->registerDevice(std::make_unique<Device2>());
-        Executor<Device1> executor(std::move(provider));
+        Executor executor(std::move(provider));
         THEN("It can execute a command") {
             struct command {
                 using requirements = requires<>;
@@ -175,7 +188,9 @@ TEST_CASE("Executor", "[executor]") {
                 using requirements = requires<Device1, Device2>;
                 
                 bool executed = false;
-                void operator() (Device1& d1, Device2&) {
+                void operator() (Device1& d1, Device2& d2) {
+                    d1.operation1();
+                    d2.operation2();
                     executed = true;
                 }
             } cmd;
