@@ -1,6 +1,8 @@
 #pragma once
 #include <utility>
 #include <type_traits>
+#include <iterator>
+#include <array>
 
 namespace cst {
     namespace {
@@ -86,7 +88,92 @@ namespace cst {
             return int_t<detail::build_int_from_str<CS...>::value> {};
         }
         
-    
+        static constexpr unsigned long nibble_from_hex(char c, unsigned order) {
+            if(c >= '0' && c <= '9')
+               return (unsigned long)((unsigned long)c-(unsigned long)'0') << (order << 2ul);
+            else
+               return (unsigned long)(10ul + ((unsigned long)c | 32ul)-(unsigned long)'a') << (order << 2u);
+        }
+
+        static constexpr unsigned char make_byte(char c1, char c2) {
+            return static_cast<unsigned char>(nibble_from_hex(c1,1u) | nibble_from_hex(c2, 0u));
+        }
+        
+        class uuid {
+        public:
+            const unsigned long  data1;
+            const unsigned short data2;
+            const unsigned short data3;
+            const unsigned char  data4[8u];
+            
+        
+            constexpr uuid(const char (&str)[37u])
+                : data1(
+                    nibble_from_hex( str[0u], 7u ) |
+                    nibble_from_hex( str[1u], 6u ) |
+                    nibble_from_hex( str[2u], 5u ) |
+                    nibble_from_hex( str[3u], 4u ) |
+                    nibble_from_hex( str[4u], 3u ) |
+                    nibble_from_hex( str[5u], 2u ) |
+                    nibble_from_hex( str[6u], 1u ) |
+                    nibble_from_hex( str[7u], 0u )
+                  )
+                , data2(
+                    nibble_from_hex( str[9u],  3u ) |
+                    nibble_from_hex( str[10u], 2u ) |
+                    nibble_from_hex( str[11u], 1u ) |
+                    nibble_from_hex( str[12u], 0u )
+                  )
+                , data3(
+                    nibble_from_hex( str[14u], 3u ) |
+                    nibble_from_hex( str[15u], 2u ) |
+                    nibble_from_hex( str[16u], 1u ) |
+                    nibble_from_hex( str[17u], 0u )
+                  )
+                // Data 4
+                , data4 {
+                    make_byte(str[19u], str[20u]),
+                    make_byte(str[21u], str[22u]),
+                    make_byte(str[24u], str[25u]),
+                    make_byte(str[26u], str[27u]),
+                    make_byte(str[28u], str[29u]),
+                    make_byte(str[30u], str[31u]),
+                    make_byte(str[32u], str[33u]),
+                    make_byte(str[34u], str[35u])
+                }
+            {}
+
+            constexpr friend bool operator != (const uuid& a, const uuid& b) {
+                return !(a == b);
+            }
+            
+            constexpr friend bool operator == (const uuid& a, const uuid& b) {
+                return a.data1 == b.data1
+                    && a.data2 == b.data2
+                    && a.data3 == b.data3
+                    && a.data4[0u] == b.data4[0u]
+                    && a.data4[1u] == b.data4[1u]
+                    && a.data4[2u] == b.data4[2u]
+                    && a.data4[3u] == b.data4[3u]
+                    && a.data4[4u] == b.data4[4u]
+                    && a.data4[5u] == b.data4[5u]
+                    && a.data4[6u] == b.data4[6u]
+                    && a.data4[7u] == b.data4[7u];
+            }
+        };
+
+        constexpr uuid operator"" _uuid( char const* const str, size_t const size ) {
+            if(size!=36 || str[8u] != '-' || str[13u] != '-' || str[23u] != '-')
+                throw "malformed uuid!";
+            return uuid({
+                str[ 0u], str[ 1u], str[ 2u], str[ 3u], str[ 4u], str[ 5u], str[ 6u], str[ 7u], str[ 8u],
+                str[ 9u], str[10u], str[11u], str[12u], str[13u],
+                str[14u], str[15u], str[16u], str[17u], str[18u],
+                str[19u], str[20u], str[21u], str[22u], str[23u],
+                str[24u], str[25u], str[26u], str[27u], str[28u], str[29u], str[30u], str[31u], str[32u], str[33u], str[34], str[35], '\0'
+            });
+        }
+        
         /// a constexpr value wrapper class
         template <typename ElementType> class
         val {

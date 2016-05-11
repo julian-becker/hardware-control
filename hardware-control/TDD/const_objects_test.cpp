@@ -127,3 +127,29 @@ TEST_CASE("mapping constexpr values") {
     STATIC_ASSERT(m3[11] == 'B');
 }
 
+
+TEST_CASE("constexpr uuid class") {
+    using namespace cst;
+    constexpr auto uuid1 = "718EB018-A00A-11E5-A42E-4F4C358CC448"_uuid;
+    constexpr auto uuid2 = "00000000-A00A-11E5-A42E-4F4C358CC448"_uuid;
+    
+    STATIC_ASSERT(uuid1 == "718EB018-A00A-11E5-A42E-4F4C358CC448"_uuid);
+    STATIC_ASSERT(uuid1 != uuid2);
+    
+    std::cout << std::hex << uuid1.data1 << std::endl;
+    std::cout << std::hex << uuid1.data2 << std::endl;
+    std::cout << std::hex << uuid1.data3 << std::endl;
+    std::cout << std::hex << uuid1.data4[0] << std::endl;
+    
+    STATIC_ASSERT(uuid1.data1 == 0x718EB018u);
+    STATIC_ASSERT(uuid1.data2 == 0xA00A);
+    STATIC_ASSERT(uuid1.data3 == 0x11E5);
+    STATIC_ASSERT(uuid1.data4[0u] == 0xA4);
+    STATIC_ASSERT(uuid1.data4[1u] == 0x2E);
+    STATIC_ASSERT(uuid1.data4[2u] == 0x4F);
+    STATIC_ASSERT(uuid1.data4[3u] == 0x4C);
+    STATIC_ASSERT(uuid1.data4[4u] == 0x35);
+    STATIC_ASSERT(uuid1.data4[5u] == 0x8C);
+    STATIC_ASSERT(uuid1.data4[6u] == 0xC4);
+    STATIC_ASSERT(uuid1.data4[7u] == 0x48);
+}

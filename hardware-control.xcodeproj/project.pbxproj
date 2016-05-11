@@ -7,9 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B92F6E391CDA9DBE00139709 /* callable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B92F6E371CDA9DBE00139709 /* callable.cpp */; };
 		B93D45DE1BA0B9A6002B6F51 /* with_destructor_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B93D45DD1BA0B9A6002B6F51 /* with_destructor_test.cpp */; };
 		B93D45E31BA0BBC3002B6F51 /* observable_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B93D45E11BA0BBC3002B6F51 /* observable_test.cpp */; };
 		B93D45E61BA0C02E002B6F51 /* listener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B93D45E41BA0C02E002B6F51 /* listener.cpp */; };
+		B94B101F1C5D19F5006EF6C0 /* elf_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B94B101E1C5D19F5006EF6C0 /* elf_test.cpp */; };
+		B975884A1C4EE35000CFD750 /* transducers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B97588481C4EE35000CFD750 /* transducers.cpp */; };
 		B9BFAB031B39E15B006471ED /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9BFAB021B39E15B006471ED /* main.cpp */; };
 		B9CB5E1F1B8E5A4B00010456 /* test_any.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9CB5E1E1B8E5A4B00010456 /* test_any.cpp */; };
 		B9CB5E231B8E5ACF00010456 /* test_motorctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9CB5E221B8E5ACF00010456 /* test_motorctrl.cpp */; };
@@ -31,6 +34,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B92F6E371CDA9DBE00139709 /* callable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = callable.cpp; sourceTree = "<group>"; };
 		B93D45DA1BA0B719002B6F51 /* inotifyable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inotifyable.h; sourceTree = "<group>"; };
 		B93D45DC1BA0B808002B6F51 /* with_destructor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = with_destructor.h; sourceTree = "<group>"; };
 		B93D45DD1BA0B9A6002B6F51 /* with_destructor_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = with_destructor_test.cpp; sourceTree = "<group>"; };
@@ -40,7 +44,10 @@
 		B93D45E21BA0BBC3002B6F51 /* observable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = observable.h; sourceTree = "<group>"; };
 		B93D45E41BA0C02E002B6F51 /* listener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = listener.cpp; sourceTree = "<group>"; };
 		B93D45E51BA0C02E002B6F51 /* listener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = listener.h; sourceTree = "<group>"; };
+		B94B101E1C5D19F5006EF6C0 /* elf_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = elf_test.cpp; sourceTree = "<group>"; };
 		B9652E3A1B3B384D00141CAF /* Any.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Any.h; path = Framework/Any.h; sourceTree = "<group>"; };
+		B97588481C4EE35000CFD750 /* transducers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = transducers.cpp; sourceTree = "<group>"; };
+		B97588491C4EE35000CFD750 /* transducers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = transducers.h; sourceTree = "<group>"; };
 		B980138E197289AD00373737 /* hardware-control */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "hardware-control"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B9BFAAEE1B388376006471ED /* IVisitor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IVisitor.h; path = Framework/Interfaces/IVisitor.h; sourceTree = "<group>"; };
 		B9BFAAEF1B3883A1006471ED /* IVisitable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IVisitable.h; path = Framework/Interfaces/IVisitable.h; sourceTree = "<group>"; };
@@ -100,6 +107,10 @@
 				B9F579BF1BE29531008EC8F4 /* const_objects.h */,
 				B9CCC5271C03A3AA003848E8 /* interruptible_test.cpp */,
 				B9CCC5281C03A3AA003848E8 /* interruptible.h */,
+				B97588481C4EE35000CFD750 /* transducers.cpp */,
+				B97588491C4EE35000CFD750 /* transducers.h */,
+				B94B101E1C5D19F5006EF6C0 /* elf_test.cpp */,
+				B92F6E371CDA9DBE00139709 /* callable.cpp */,
 			);
 			path = TDD;
 			sourceTree = "<group>";
@@ -302,10 +313,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B92F6E391CDA9DBE00139709 /* callable.cpp in Sources */,
 				B93D45E31BA0BBC3002B6F51 /* observable_test.cpp in Sources */,
 				B9CB5E1F1B8E5A4B00010456 /* test_any.cpp in Sources */,
+				B975884A1C4EE35000CFD750 /* transducers.cpp in Sources */,
 				B9F77A611B98DB27002867BA /* test_observer.cpp in Sources */,
 				B93D45DE1BA0B9A6002B6F51 /* with_destructor_test.cpp in Sources */,
+				B94B101F1C5D19F5006EF6C0 /* elf_test.cpp in Sources */,
 				B9CCC5291C03A3AA003848E8 /* interruptible_test.cpp in Sources */,
 				B9CB5E231B8E5ACF00010456 /* test_motorctrl.cpp in Sources */,
 				B9BFAB031B39E15B006471ED /* main.cpp in Sources */,
