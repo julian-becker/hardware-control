@@ -37,6 +37,81 @@ std::string demangle() {
 }
 }
 
+
+template <typename...Devices> struct requires {
+    static constexpr size_t size = sizeof...(Devices);
+};
+
+
+
+template <typename T>
+struct command_traits;
+
+template <typename Ret,typename Class,typename...Ts>
+struct command_traits<Ret(Class::*)(Ts...)> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts>
+struct command_traits<Ret(Class::*)(Ts...) const> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts>
+struct command_traits<Ret(Class::*)(Ts...) const volatile> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts>
+struct command_traits<Ret(Class::*)(Ts...) &> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+
+template <typename Ret,typename Class,typename...Ts>
+struct command_traits<Ret(Class::*)(Ts...) const& > {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts>
+struct command_traits<Ret(Class::*)(Ts...) const volatile &> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts>
+struct command_traits<Ret(Class::*)(Ts...) &&> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+
+template <typename Ret,typename Class,typename...Ts>
+struct command_traits<Ret(Class::*)(Ts...) const&&> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts>
+struct command_traits<Ret(Class::*)(Ts...) const volatile &&> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename T> struct
+requirements_traits;
+
+template <typename T> struct
+requirements_traits {
+    using type = typename command_traits<decltype(&std::decay_t<T>::operator())>::type;
+};
+
+template <typename T>
+using requirements_t = typename requirements_traits<T>::type;
+
+
+
+
+
+
+
+
 template <int...>
 struct Seq {};
 
@@ -122,9 +197,6 @@ public:
 };
 
 
-template <typename...Devices> struct requires {
-    static constexpr size_t size = sizeof...(Devices);
-};
 
 template <typename> using MapToLockableDevice = LockableDevice;
 
@@ -183,7 +255,7 @@ class ResourceOrchestrator {
     
     template <typename Command> struct
     result_of {
-        using type = decltype(result_type_helper(std::declval<Command>(), typename std::decay_t<Command>::requirements()));
+        using type = decltype(result_type_helper(std::declval<std::decay_t<Command>>(), requirements_t<Command>()));
     };
     template <typename T> using result_of_t = typename result_of<T>::type;
 
@@ -234,7 +306,7 @@ public:
     
     template <typename Command, typename Result = result_of_t<Command>>
     auto execute(Command&& cmd) -> Result {
-        using requiredResources = typename std::decay_t<Command>::requirements;
+        using requiredResources = requirements_t<Command>;
         auto devices = resourceRegistry->acquire(requiredResources());
         std::promise<Result> promise;
         auto future = promise.get_future();
@@ -242,7 +314,6 @@ public:
         return future.get();
     }
 };
-
 
 TEST_CASE("ResourceOrchestrator", "[executor]") {
     GIVEN("A ResourceOrchestrator and a ResourceRegistry") {
@@ -263,7 +334,6 @@ TEST_CASE("ResourceOrchestrator", "[executor]") {
         THEN("It can execute a command") {
             bool executed = false;
             struct command {
-                using requirements = requires<>;
                 std::reference_wrapper<bool> executed;
                 void operator() () {
                     bool& b(executed);
@@ -277,8 +347,6 @@ TEST_CASE("ResourceOrchestrator", "[executor]") {
         THEN("It can execute a command with ressource requirements") {
             bool executed = false;
             struct command {
-                using requirements = requires<Device1, Device2>;
-                
                 std::reference_wrapper<bool> executedRef;
                 void operator() (Device1& d1, Device2& d2) {
                     bool& executed(executedRef);
