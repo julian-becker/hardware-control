@@ -38,90 +38,73 @@ std::string demangle() {
 }
 
 
-template <typename...Devices> struct requires {
+template <
+    typename...Devices
+    > struct
+requires {
     static constexpr size_t size = sizeof...(Devices);
 };
 
 
 
-template <typename T>
-struct command_traits;
+template <typename T> struct
+decay_args_of;
 
-template <typename Ret,typename Class,typename...Ts>
-struct command_traits<Ret(Class::*)(Ts...)> {
+template <typename Ret,typename Class,typename...Ts> struct
+decay_args_of<Ret(Class::*)(Ts...)> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts> struct
+decay_args_of<Ret(Class::*)(Ts...) const> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts> struct
+decay_args_of<Ret(Class::*)(Ts...) const volatile> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts> struct
+decay_args_of<Ret(Class::*)(Ts...) &> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts> struct
+decay_args_of<Ret(Class::*)(Ts...) const& > {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts> struct
+decay_args_of<Ret(Class::*)(Ts...) const volatile &> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts> struct
+decay_args_of<Ret(Class::*)(Ts...) &&> {
+    using type = requires<std::decay_t<Ts>...>;
+};
+
+template <typename Ret,typename Class,typename...Ts> struct
+decay_args_of<Ret(Class::*)(Ts...) const&&> {
     using type = requires<std::decay_t<Ts>...>;
 };
 
 template <typename Ret,typename Class,typename...Ts>
-struct command_traits<Ret(Class::*)(Ts...) const> {
-    using type = requires<std::decay_t<Ts>...>;
-};
-
-template <typename Ret,typename Class,typename...Ts>
-struct command_traits<Ret(Class::*)(Ts...) const volatile> {
-    using type = requires<std::decay_t<Ts>...>;
-};
-
-template <typename Ret,typename Class,typename...Ts>
-struct command_traits<Ret(Class::*)(Ts...) &> {
-    using type = requires<std::decay_t<Ts>...>;
-};
-
-
-template <typename Ret,typename Class,typename...Ts>
-struct command_traits<Ret(Class::*)(Ts...) const& > {
-    using type = requires<std::decay_t<Ts>...>;
-};
-
-template <typename Ret,typename Class,typename...Ts>
-struct command_traits<Ret(Class::*)(Ts...) const volatile &> {
-    using type = requires<std::decay_t<Ts>...>;
-};
-
-template <typename Ret,typename Class,typename...Ts>
-struct command_traits<Ret(Class::*)(Ts...) &&> {
-    using type = requires<std::decay_t<Ts>...>;
-};
-
-
-template <typename Ret,typename Class,typename...Ts>
-struct command_traits<Ret(Class::*)(Ts...) const&&> {
-    using type = requires<std::decay_t<Ts>...>;
-};
-
-template <typename Ret,typename Class,typename...Ts>
-struct command_traits<Ret(Class::*)(Ts...) const volatile &&> {
+struct decay_args_of<Ret(Class::*)(Ts...) const volatile &&> {
     using type = requires<std::decay_t<Ts>...>;
 };
 
 template <typename T> struct
-requirements_traits;
+requirements_of;
 
 template <typename T> struct
-requirements_traits {
-    using type = typename command_traits<decltype(&std::decay_t<T>::operator())>::type;
+requirements_of {
+    using type = typename decay_args_of<decltype(&std::decay_t<T>::operator())>::type;
 };
 
 template <typename T>
-using requirements_t = typename requirements_traits<T>::type;
-
-
-
-
-
-
-
-
-template <int...>
-struct Seq {};
-
-template <int n, int... s>
-struct Gens : Gens<n-1, n-1, s...> {};
-
-template <int... s>
-struct Gens<0, s...> {
-  typedef Seq<s...> type;
-};
+using requirements_of_t = typename requirements_of<T>::type;
 
 
 /// We want a metafunction to accept an index N into our type list LIST
@@ -165,29 +148,23 @@ auto lock(T1& t1) {
 class LockableDevice {
     mutable std::mutex mutex;
     std::shared_ptr<void> const device;
-    std::string name;
 public:
     template <typename Device>
     LockableDevice(std::unique_ptr<Device> device)
         : device(std::move(device))
-        , name(demangle<Device>())
     {
     }
     
     void lock() const {
         mutex.lock();
-        std::cout << "LOCKED:   " << name << std::endl;
     }
     
     void unlock() const {
         mutex.unlock();
-        std::cout << "UNLOCKED: " << name << std::endl;
     }
     
     bool try_lock() const {
-        auto res = mutex.try_lock();
-        std::cout << "TRYLOCK:  " << name << " -> " << (res? "success" : "failure") << std::endl;
-        return res;
+        return mutex.try_lock();
     }
     
     template <typename Device>
@@ -255,14 +232,9 @@ class ResourceOrchestrator {
     
     template <typename Command> struct
     result_of {
-        using type = decltype(result_type_helper(std::declval<std::decay_t<Command>>(), requirements_t<Command>()));
+        using type = decltype(result_type_helper(std::declval<std::decay_t<Command>>(), requirements_of_t<Command>()));
     };
     template <typename T> using result_of_t = typename result_of<T>::type;
-
-    template <typename...T>
-    struct task_wrapper {
-        
-    };
     
 public:
     ResourceOrchestrator(std::unique_ptr<ResourceRegistry> resourceRegistry, std::shared_ptr<Executor> executor)
@@ -272,10 +244,20 @@ public:
     }
     
 
-    template<typename Result, typename Command, typename Devices, int ...S>
-    std::enable_if_t<std::is_same<Result,void>::value, void>
-    executeWithDevices(std::promise<Result> promise, Command&& cmd, std::shared_ptr<void> lockScope, Devices&& devs, Seq<S...>) {
-        std::function<void(std::promise<Result>& prom, Command& cmd, type_at<S,Devices>&...devices)> unboundTask =
+    template<
+        typename Result,
+        typename Command,
+        typename Devices,
+        int ...S
+    > std::enable_if_t<std::is_same<Result,void>::value, void>
+    executeWithDevices(
+        std::promise<Result> promise,
+        Command&& cmd,
+        std::shared_ptr<void> lockScope,
+        Devices&& devs,
+        std::index_sequence<S...>)
+    {
+        auto unboundTask =
             [](std::promise<Result>& prom, Command& cmd, type_at<S,Devices>&...devices) {
                 try {
                     cmd(*devices...);
@@ -284,14 +266,27 @@ public:
                     prom.set_exception(std::current_exception());
                 }
             };
-        std::function<void()> task = shared_function(std::bind(unboundTask, std::move(promise), std::forward<Command>(cmd), std::get<S>(devs)...));
-        executor->execute(task);
+        /// the callable returned by std::bind is not movable, so we wrap it in a std::shared_ptr in a std::function
+        /// in order to keep all lockScopes alive for the lifetime of the task.
+        std::function<void()> boundTask = shared_function(std::bind(unboundTask, std::move(promise), std::forward<Command>(cmd), std::get<S>(devs)...));
+        executor->execute(boundTask);
     }
     
-    template<typename Result, typename Command, typename Devices, int ...S>
-    std::enable_if_t<!std::is_same<Result,void>::value, void>
-    executeWithDevices(std::promise<Result> promise, Command&& cmd, std::shared_ptr<void> lockScope, Devices&& devs, Seq<S...>) {
-        std::function<void(std::promise<Result>& prom, Command& cmd, type_at<S,Devices>&...devices)> unboundTask =
+    template<
+        typename Result,
+        typename Command,
+        typename Devices,
+        size_t ...S
+    > std::enable_if_t<!std::is_same<Result,void>::value, void>
+    executeWithDevices(
+        std::promise<Result> promise,
+        Command&& cmd,
+        std::shared_ptr<void> lockScope,
+        Devices&& devs,
+        std::index_sequence<S...>)
+    {
+        auto unboundTask =
+            /// accepts args by lvalue reference, because they will be bound into the task alongside this lambda below
             [](std::promise<Result>& prom, Command& cmd, type_at<S,Devices>&...devices) {
                 try {
                     auto result = cmd(*devices...);
@@ -304,14 +299,17 @@ public:
         executor->execute(task);
     }
     
-    template <typename Command, typename Result = result_of_t<Command>>
-    auto execute(Command&& cmd) -> Result {
-        using requiredResources = requirements_t<Command>;
+    template <
+        typename Command,
+        typename Result = result_of_t<Command>,
+        typename requiredResources = requirements_of_t<Command>
+    > auto
+    execute(Command&& cmd) -> std::future<Result> {
         auto devices = resourceRegistry->acquire(requiredResources());
         std::promise<Result> promise;
         auto future = promise.get_future();
-        executeWithDevices(std::move(promise), std::forward<Command>(cmd), std::move(devices.first), std::move(devices.second), typename Gens<requiredResources::size>::type());
-        return future.get();
+        executeWithDevices(std::move(promise), std::forward<Command>(cmd), std::move(devices.first), std::move(devices.second), std::make_index_sequence<requiredResources::size>{});
+        return future;
     }
 };
 
@@ -348,16 +346,28 @@ TEST_CASE("ResourceOrchestrator", "[executor]") {
             bool executed = false;
             struct command {
                 std::reference_wrapper<bool> executedRef;
-                void operator() (Device1& d1, Device2& d2) {
+                int operator() (Device1& d1, Device2& d2) {
                     bool& executed(executedRef);
                     std::cout << "executing............." << std::endl;
                     d1.operation1();
                     d2.operation2();
                     executed = true;
+                    return 42;
                 }
             } cmd { std::ref(executed) };
-            orchestrator.execute(cmd);
+            auto retval = orchestrator.execute(cmd);
             REQUIRE(executed);
+            REQUIRE(retval.get() == 42);
         }
     }
+    
+    
+    auto consBits = []( unsigned long x) {
+        int consecutiveBits = 0;
+        for(;x;consecutiveBits++)
+            x &= (x<<1u);
+        
+        return consecutiveBits;
+    };
+    std::cout << " CONSECUTIVE BITS:" << consBits(0b111101111u) << std::endl;
 }

@@ -12,6 +12,7 @@
 		B93D45E31BA0BBC3002B6F51 /* observable_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B93D45E11BA0BBC3002B6F51 /* observable_test.cpp */; };
 		B93D45E61BA0C02E002B6F51 /* listener.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B93D45E41BA0C02E002B6F51 /* listener.cpp */; };
 		B94B101F1C5D19F5006EF6C0 /* elf_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B94B101E1C5D19F5006EF6C0 /* elf_test.cpp */; };
+		B953EA081CE742430032A4C3 /* streams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B953EA061CE742430032A4C3 /* streams.cpp */; };
 		B95BAAC11CE3AF94002D0C21 /* command_executor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B95BAABF1CE3AF94002D0C21 /* command_executor.cpp */; };
 		B975884A1C4EE35000CFD750 /* transducers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B97588481C4EE35000CFD750 /* transducers.cpp */; };
 		B9BFAB031B39E15B006471ED /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9BFAB021B39E15B006471ED /* main.cpp */; };
@@ -46,6 +47,8 @@
 		B93D45E41BA0C02E002B6F51 /* listener.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = listener.cpp; sourceTree = "<group>"; };
 		B93D45E51BA0C02E002B6F51 /* listener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = listener.h; sourceTree = "<group>"; };
 		B94B101E1C5D19F5006EF6C0 /* elf_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = elf_test.cpp; sourceTree = "<group>"; };
+		B953EA061CE742430032A4C3 /* streams.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = streams.cpp; sourceTree = "<group>"; };
+		B953EA071CE742430032A4C3 /* streams.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = streams.hpp; sourceTree = "<group>"; };
 		B95BAABF1CE3AF94002D0C21 /* command_executor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = command_executor.cpp; sourceTree = "<group>"; };
 		B95BAAC01CE3AF94002D0C21 /* command_executor.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = command_executor.hpp; sourceTree = "<group>"; };
 		B9652E3A1B3B384D00141CAF /* Any.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Any.h; path = Framework/Any.h; sourceTree = "<group>"; };
@@ -116,6 +119,8 @@
 				B92F6E371CDA9DBE00139709 /* callable.cpp */,
 				B95BAABF1CE3AF94002D0C21 /* command_executor.cpp */,
 				B95BAAC01CE3AF94002D0C21 /* command_executor.hpp */,
+				B953EA061CE742430032A4C3 /* streams.cpp */,
+				B953EA071CE742430032A4C3 /* streams.hpp */,
 			);
 			path = TDD;
 			sourceTree = "<group>";
@@ -331,6 +336,7 @@
 				B9BFAB031B39E15B006471ED /* main.cpp in Sources */,
 				B9F579C01BE29531008EC8F4 /* const_objects_test.cpp in Sources */,
 				B93D45E61BA0C02E002B6F51 /* listener.cpp in Sources */,
+				B953EA081CE742430032A4C3 /* streams.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
